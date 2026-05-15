@@ -789,6 +789,106 @@ window.updateTimer = function(id) { const el = document.getElementById(id); if(e
 window.doReset = async function() { const clean = { phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, deadIds: [], currentDuel: null, apparition: null, anomaly: null, powerUses: {}, activePowerUI: {}, protectedId: null }; Object.keys(window.state).forEach(k => { if (k.startsWith('thesis_')) clean[k] = null; }); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: clean }); window.state = clean; window.render(); };
 
 window.onload = function() { window.sync(); setInterval(window.sync, 2500); window.render(); };
+
+/* ========== MUSICA DI SOTTOFONDO PER FASE DI GIOCO ========== */
+/* Solo questo blocco è stato aggiunto: nessun'altra logica del gioco è stata toccata. */
+(function() {
+  // Mappa: per ogni fase del gioco, quale brano suona.
+  // I file sono ospitati su https://www.perrottapartners.it/
+  // Gli spazi negli URL DEVONO essere codificati come %20.
+  const BASE = 'https://www.perrottapartners.it/';
+  const TRACKS = {
+    piano_crustaceo:      BASE + 'Piano%20Crustaceo.mp3',
+    tema_delitto:         BASE + 'Tema%20del%20Delitto.mp3',
+    tema_delitto_voti:    BASE + 'Tema%20del%20Delitto%20(1).mp3',
+    marcia_fumo_spento:   BASE + 'Marcia%20Fumo%20Spento.mp3',
+    tema_delitto_winner:  BASE + 'Tema%20del%20Delitto%20(3).mp3'
+  };
+
+  // Quale traccia per quale fase (modifica liberamente se vuoi diverso)
+  const PHASE_TO_TRACK = {
+    'lobby':            TRACKS.piano_crustaceo,
+    'scoreboard':       TRACKS.piano_crustaceo,
+    'intro':            TRACKS.tema_delitto,
+    'round_intro':      TRACKS.tema_delitto,
+    'discussion':       TRACKS.tema_delitto,
+    'select_thesis':    TRACKS.tema_delitto_voti,
+    'voting_suspect':   TRACKS.tema_delitto_voti,
+    'voting_verdict':   TRACKS.tema_delitto_voti,
+    'killer_mark':      TRACKS.marcia_fumo_spento,
+    'final_challenge':  TRACKS.marcia_fumo_spento,
+    'finale_winner':    TRACKS.tema_delitto_winner
+  };
+
+  // Un singolo elemento <audio> riutilizzabile per tutte le tracce
+  const player = document.createElement('audio');
+  player.id = 'phase-music-player';
+  player.loop = true;
+  player.volume = 0.5;
+  player.preload = 'auto';
+  document.body.appendChild(player);
+
+  let currentSrc = null;
+  let unlocked = false; // i browser bloccano l'autoplay finché l'utente non interagisce
+  let pendingSrc = null;
+
+  // Al primo click/tap/touch dell'utente, sblocchiamo l'audio
+  function unlockAudio() {
+    if (unlocked) return;
+    unlocked = true;
+    if (pendingSrc) {
+      player.src = pendingSrc;
+      currentSrc = pendingSrc;
+      pendingSrc = null;
+      player.play().catch(err => console.warn('Audio play bloccato:', err));
+    }
+  }
+  document.addEventListener('click', unlockAudio, { capture: true });
+  document.addEventListener('touchstart', unlockAudio, { capture: true });
+  document.addEventListener('keydown', unlockAudio, { capture: true });
+
+  window.setPhaseAudio = function() {
+    // Solo sulla vista TV facciamo suonare la musica
+    if (window.activeView !== 'tv') {
+      if (!player.paused) player.pause();
+      currentSrc = null;
+      pendingSrc = null;
+      return;
+    }
+
+    const phase = window.state && window.state.phase;
+    const target = PHASE_TO_TRACK[phase];
+
+    // Fase senza traccia → silenzio
+    if (!target) {
+      if (!player.paused) player.pause();
+      currentSrc = null;
+      return;
+    }
+
+    // Già in riproduzione, nessun cambio necessario
+    if (currentSrc === target && !player.paused) return;
+
+    // Cambio traccia
+    if (!unlocked) {
+      // Salvo per quando l'utente cliccherà la prima volta
+      pendingSrc = target;
+      return;
+    }
+    player.src = target;
+    currentSrc = target;
+    player.play().catch(err => console.warn('Audio play bloccato:', err));
+  };
+
+  // Aggancio: ogni volta che il gioco fa render, sincronizzo la musica
+  const _originalRender = window.render;
+  window.render = function() {
+    const r = _originalRender.apply(this, arguments);
+    try { window.setPhaseAudio(); } catch(e) { console.warn(e); }
+    return r;
+  };
+})();
+/* ========== FINE BLOCCO MUSICA ========== */
 </script>
 </body>
 </html>
