@@ -104,7 +104,7 @@
 
 <script>
 /** --- 0. PREMESSA NARRATIVA --- **/
-window.PREMISE = "Benvenuti a Casa Valenti. Sette anni fa, durante un brindisi celebrativo, il patriarca Ettore morì avvelenato. Nessun colpevole fu mai trovato, ma stasera la Casa ha deciso di riaprire i suoi archivi. Le mura ricordano ogni sussurro, ogni sguardo traditore. Uno di voi ha versato il veleno. Gli altri hanno aiutato a coprire l'orrore. Il banchetto finale è iniziato.";
+window.PREMISE = "Benvenuti a Casa Valenti. Sette anni fa, durante un brindisi celebrativo, il patriarca Ettore Valenti morì avvelenato. Nessun colpevole fu mai trovato, e degli altri commensali di quella sera non si seppe più nulla. Stasera, sette anni dopo, la Casa ha richiamato allo stesso tavolo altre sette persone. Le mura ricordano ogni sussurro, ogni sguardo traditore. Tra voi si nasconde un killer, pronto a ripetere il sacrificio. Il banchetto finale è iniziato.";
 
 /** --- 1. DATI ARCHIVI INTEGRALI --- **/
 window.ROUNDS = [
@@ -177,7 +177,7 @@ window.ROUNDS = [
     ]
   },
   { 
-    id: 5, title: "Archivio 05 — Sotto il Suo Occhio",
+    id: 5, title: "Archivio 05 — È la Sua Volontà",
     story: "L'eliminazione del patriarca fu presentata come un sacrificio necessario a restaurare l'ordine e la purezza originaria del gruppo.",
     question: "Chi tra voi manifesta il fanatismo più radicale, pronto a immolare la logica e l'umanità sull'altare di un'ideologia superiore?",
     labels:{suspect:"Il Fanatico", accuser:"L'Eretico", defender:"Il Fedele"},
@@ -195,7 +195,7 @@ window.ROUNDS = [
   },
   { 
     id: 6, title: "Archivio 06 — L'Anomalia Empatica",
-    story: "Sette anni fa, la morte del patriarca non fu dettata dall'odio, ma da una fredda curiosità sperimentale, analizzata con distaccata indifferenza.",
+    story: "Da alcune pagine di diario rinvenute nella cantina, emerge che qualcuno potrebbe aver orchestrato la morte di Ettore non per odio, ma per sperimentare qualcosa di scientifico, osservando tutto con distaccata indifferenza.",
     question: "Chi appare capace della più assoluta anaffettività, osservando le sofferenze altrui senza battere ciglio?",
     labels:{suspect:"L'Indifferente", accuser:"L'Emotivo", defender:"L'Osservatore"},
     gmGuide: "Focus sulla sociopatia. L'assassino potrebbe essere qualcuno che non prova rimorso perché non prova sentimenti. Chi tra loro sembra 'vuoto' o troppo calmo sotto pressione?",
@@ -228,7 +228,7 @@ window.ROUNDS = [
     ] 
   },
   { 
-    id: 8, title: "Archivio 08 — L'Ombra della Loggia",
+    id: 8, title: "Archivio 08 — Lasciamo solo l'Ombra",
     story: "Si diffuse l'ipotesi che il patriarca fosse stato eliminato da un simulacro, un 'doppio' che ne aveva usurpato l'identità.",
     question: "Chi nasconde una nature ambivalente, un volto inquietante che si palesa solo quando crede di essere al sicuro?",
     labels:{suspect:"Il Doppio", accuser:"Lo Specchio", defender:"Il Guardiano"},
@@ -246,7 +246,7 @@ window.ROUNDS = [
   },
   { 
     id: 9, title: "Archivio 09 — Il Faro nell'Angoscia",
-    story: "Dopo il delitto, il tentativo di fuga fallì miseramente: ogni sentiero nel bosco riconduceva alla porta di Casa Valenti.",
+    story: "Dopo il delitto, i commensali provarono più volte a scappare, ma ogni sentiero nel bosco li riconduceva sempre alla porta di Casa Valenti. Iniziarono a pensare che il gruppo non potesse salvarsi insieme, e che forse sarebbe stato richiesto un ulteriore sacrificio.",
     question: "Chi ha avuto la viltà di suggerire che la salvezza non potesse riguardare l'intero gruppo?",
     labels:{suspect:"Il Codardo", accuser:"Il Solidale", defender:"Il Pragmatico"},
     gmGuide: "Sopravvivenza del più forte. Questo round serve a capire chi, nel momento del panico, ha pensato solo a se stesso. Ettore è morto perché qualcuno ha deciso che valeva più di lui.",
@@ -262,8 +262,8 @@ window.ROUNDS = [
     ]
   },
   { 
-    id: 10, title: "Archivio 10 — Il Sottosopra",
-    story: "Sette anni fa, qualcuno si rifugiò nell'irrazionale per negare l'atrocità delle proprie azioni e assolverle.",
+    id: 10, title: "Archivio 10 — Sottosopra",
+    story: "Dopo il tentativo di fuga, qualcuno convinse gli altri di aver sperimentato qualcosa: tutto era uguale ma diverso, come se fossero precipitati in una versione più oscura della stessa realtà.",
     question: "Chi è più incline a invocare spiegazioni assurde pur di non assumersi la responsabilità delle proprie colpe?",
     labels:{suspect:"Il Visionario", accuser:"Il Razionalista", defender:"Il Folle"},
     gmGuide: "L'ultimo stadio della colpa: la follia o la negazione della realtà. Chi tra loro preferisce credere ai fantasmi piuttosto che guardarsi allo specchio? È il round che prepara alla discesa finale.",
@@ -305,7 +305,32 @@ window.ANOMALIES_BANK = [
     "Smettila di parlare completamente per 3 minuti, comunicando solo a cenni.",
     "Fischietta una ninna nanna infantile molto lentamente.",
     "Appoggia le mani sul tavolo e guarda in alto come ascoltando una voce.",
-    "Tocca la sedia di Ettore (vuota) e chiedi scusa sottovoce."
+    "Tocca la sedia di Ettore (vuota) e chiedi scusa sottovoce.",
+    "Da ora e per i prossimi 2 minuti, ogni volta che parli devi iniziare la frase con 'Onestamente...'.",
+    "Non puoi più pronunciare il nome del giocatore alla tua destra. Se ti serve nominarlo, descrivilo solo per indizi.",
+    "Per i prossimi 3 minuti, ogni tua frase deve contenere la parola 'veleno'.",
+    "Da ora puoi rispondere solo con domande. Una sola affermazione e perdi un punto morale.",
+    "Devi parlare solo in terza persona di te stesso (es. 'lui pensa che il killer sia...').",
+    "Ogni volta che qualcuno ti accusa direttamente, prima di difenderti devi dire 'Interessante osservazione, Watson'.",
+    "Per i prossimi 2 minuti tieni una mano sul cuore mentre parli, come se prestassi giuramento.",
+    "Quando bevi devi farlo sempre col mignolo alzato, fino al prossimo archivio.",
+    "Ogni volta che dici 'sì' o 'no' devi accompagnare la parola con un gesto opposto (annuisci dicendo no, scuoti la testa dicendo sì).",
+    "Per il prossimo archivio devi tenere gli occhi chiusi mentre ascolti la narrazione.",
+    "Inchinati ogni volta che il game master nomina Ettore Valenti.",
+    "Scambia posto col giocatore alla tua sinistra. Da ora siete l'uno l'altro per il prossimo voto.",
+    "Per i prossimi 5 minuti devi parlare a nome del giocatore di fronte a te: se ha qualcosa da dire, deve sussurrartelo e tu la riferisci ad alta voce.",
+    "Scegli un giocatore: per il resto del round devi essere d'accordo con tutto quello che dice, anche se sostiene l'opposto di te.",
+    "Hai un alleato segreto: scegli mentalmente un giocatore. Devi sottilmente difenderlo per il resto del round senza mai nominarlo.",
+    "Devi convincere un altro giocatore (a tua scelta) a scambiarsi un oggetto con te (bicchiere, tovagliolo, posata) entro 1 minuto.",
+    "La Casa ti ha appena sussurrato un segreto: ora sai che il killer ha gli occhi dello stesso colore dei tuoi. (È falso, ma devi comportarti come se fosse vero.)",
+    "Da ora, ogni volta che senti un rumore casuale nella stanza (un bicchiere, un colpo di tosse, una sedia), devi dire 'Lo sapevo'.",
+    "Sei convinto di aver vissuto già questa serata. Ogni volta che qualcuno dice qualcosa di importante, mormora 'lo aveva già detto la scorsa volta'.",
+    "Hai trovato un foglietto: è scritto 'Non fidarti di chi ti sta di fronte'. Devi crederci ciecamente per i prossimi 3 minuti.",
+    "Da ora il tuo nome non è più il tuo nome. Sei 'Il Maggiordomo'. Tutti devono chiamarti così fino al prossimo archivio.",
+    "Per i prossimi 2 minuti credi fermamente che la sedia su cui sei seduto sia un trono. Comportati di conseguenza.",
+    "Ogni volta che senti la parola 'veleno', 'morto' o 'killer', devi fare un piccolo applauso (3 battiti di mano).",
+    "Hai appena ricordato che da bambino volevi fare il poliziotto. Inserisci almeno un riferimento a un film o serie crime nei prossimi 2 minuti di gioco.",
+    "Sei convinto di essere il fantasma di Ettore Valenti. Solo per 1 minuto. Comportati come uno spirito vagamente offeso."
 ];
 
 window.sb = window.supabase.createClient("https://wskjkstsxyshshskjkro.supabase.co", "sb_publishable_VB_PlUWq9aCpQZAA7nSHtw_q2Us5-_k");
@@ -318,12 +343,23 @@ window.state = {
   phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, 
   deadIds: [], apparition: null, anomaly: null, currentDuel: null, 
   powerUses: {}, activePowerUI: {}, timerEndsAt: null, adminEditId: null,
-  protectedId: null 
+  protectedId: null,
+  // --- meccanica finale a 3 ---
+  protectionVotes: {},      // { deadPlayerId: targetFinalistId } chi vota chi proteggere
+  finalProtectedId: null,   // id del finalista effettivamente protetto (dopo chiusura voti)
+  killerVictimId: null,     // chi il killer ha scelto di eliminare
+  killerEliminated: false,  // true se la vittima è stata effettivamente eliminata (non protetta)
+  finalAnswers: {}          // { playerId: guessedKillerId } per la domanda "chi è il killer?"
 };
 
 /** --- 3. UTILITY RENDERING --- **/
 window.getStepActive = function(i) { 
-    const m = { lobby:0, intro:1, round_intro:2, voting_suspect:2, select_thesis:3, discussion:4, voting_verdict:5, killer_mark:6, scoreboard:7, final_challenge: 8 }; 
+    const m = { 
+      lobby:0, intro:1, round_intro:2, voting_suspect:2, select_thesis:3, 
+      discussion:4, voting_verdict:5, killer_mark:6, scoreboard:7, 
+      final_challenge: 8, protection_vote: 8, killer_choice: 8, 
+      final_reveal_victim: 8, final_question: 8, final_verdict: 8, finale_winner: 8 
+    }; 
     return m[window.state.phase] === i; 
 };
 
@@ -425,9 +461,147 @@ window.drawTV = function(c) {
           h += `<div class="max-w-6xl w-full"><div class="flex justify-between items-center mb-16"><div class="text-center w-1/3"><div class="w-40 h-40 rounded-full border-4 border-accent mx-auto overflow-hidden bg-white/5 mb-4 text-white">${p1.photo ? `<img src="${p1.photo}" class="w-full h-full object-cover">` : '👤'}</div><p class="text-2xl font-black uppercase text-accent">${p1.name}</p><p class="text-xl font-bold mt-2">Quiz: ${d.scores[p1.id] || 0}</p></div><div class="text-5xl font-black italic">VS</div><div class="text-center w-1/3"><div class="w-40 h-40 rounded-full border-4 border-accent mx-auto overflow-hidden bg-white/5 mb-4 text-white">${p2.photo ? `<img src="${p2.photo}" class="w-full h-full object-cover">` : '👤'}</div><p class="text-2xl font-black uppercase text-accent">${p2.name}</p><p class="text-xl font-bold mt-2">Quiz: ${d.scores[p2.id] || 0}</p></div></div><div class="duel-card p-12 rounded-3xl animate-in zoom-in text-white"><p class="kicker text-2xl mb-4 text-accent text-center">DOMANDA ${d.currentIdx + 1}/7</p><h2 class="text-5xl font-black playfair italic leading-tight text-center">"${d.questions[d.currentIdx].text}"</h2>${d.winnerId ? `<div class="mt-12 text-4xl font-black text-red-500 uppercase animate-pulse text-center">MORTE PER ${window.state.players[d.loserId].name}</div>` : ''}</div></div>`;
       }
   }
+  else if(ph==='protection_vote') {
+      // I morti votano un finalista da proteggere
+      const survivors = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id));
+      const dead = Object.values(window.state.players).filter(p => window.state.deadIds.includes(p.id));
+      const votes = window.state.protectionVotes || {};
+      const voted = Object.keys(votes).length;
+      h += `<div class="max-w-7xl w-full text-center">
+        <p class="kicker text-2xl mb-4 opacity-60 font-black tracking-[0.4em] text-emerald-400">IL VOTO DEGLI SPIRITI</p>
+        <h2 class="text-5xl font-black playfair italic mb-12">I morti scelgono chi proteggere</h2>
+        <div class="grid grid-cols-3 gap-8 mb-12">${survivors.map(p => {
+          const count = Object.values(votes).filter(v => v === p.id).length;
+          return `<div class="glass p-8 border-t-4 border-emerald-600 flex flex-col items-center">
+            <div class="w-32 h-32 rounded-full border-4 border-white/20 overflow-hidden bg-white/5 mb-4 text-white">${p.photo ? `<img src="${p.photo}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-5xl">👤</div>'}</div>
+            <p class="text-2xl font-black uppercase text-white mb-3">${p.name}</p>
+            <div class="text-6xl font-black text-emerald-400">${count}</div>
+            <p class="text-[10px] opacity-50 uppercase tracking-widest mt-2">voti di protezione</p>
+          </div>`;
+        }).join('')}</div>
+        <p class="text-xl opacity-60 italic">${voted} / ${dead.length} spiriti hanno votato</p>
+      </div>`;
+  }
+  else if(ph==='killer_choice') {
+      // Il killer sta scegliendo chi eliminare
+      const chosen = window.state.killerVictimId;
+      h += `<div class="max-w-5xl w-full text-center">
+        <p class="kicker text-2xl mb-8 opacity-60 font-black tracking-[0.4em] text-red-500">L'ULTIMA SCELTA</p>
+        <h1 class="text-[5rem] xl:text-[7rem] font-black playfair italic leading-none text-white mb-16" style="text-shadow: 0 0 60px rgba(220,38,38,0.4);">Il Killer sta<br>scegliendo<br>la sua vittima</h1>
+        <div class="text-3xl opacity-70 italic playfair animate-pulse">${chosen ? 'La scelta è stata fatta. La Casa attende il rito.' : 'Un nome sta per essere scritto col sangue...'}</div>
+      </div>`;
+  }
+  else if(ph==='final_reveal_victim') {
+      // Si rivela la vittima del killer e l'esito della protezione
+      const victimId = window.state.killerVictimId;
+      const protectedId = window.state.finalProtectedId;
+      const wasProtected = (victimId && victimId === protectedId);
+      const victim = victimId ? window.state.players[victimId] : null;
+      if (!victim) {
+          h += `<h1 class="text-6xl font-black text-accent uppercase">In attesa...</h1>`;
+      } else if (wasProtected) {
+          h += `<div class="max-w-6xl w-full text-center animate-in zoom-in">
+            <p class="kicker text-2xl mb-8 opacity-60 font-black tracking-[0.4em] text-emerald-400">PROTETTO DAGLI SPIRITI</p>
+            <div class="w-64 h-64 rounded-full border-8 border-emerald-500 mx-auto overflow-hidden bg-white/5 mb-10 text-white" style="box-shadow: 0 0 120px rgba(16,185,129,0.5);">
+              ${victim.photo ? `<img src="${victim.photo}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-8xl">👤</div>'}
+            </div>
+            <h1 class="text-[6rem] xl:text-[8rem] font-black playfair italic leading-none text-white" style="text-shadow: 0 0 80px rgba(16,185,129,0.6);">${victim.name}</h1>
+            <p class="mt-10 text-3xl italic opacity-80 playfair">"Il Killer ha alzato la lama, ma la mano si è fermata.<br>Gli spiriti hanno protetto questo commensale."</p>
+            <p class="mt-8 text-xl font-black uppercase tracking-widest text-emerald-400">Ancora in gioco</p>
+          </div>`;
+      } else {
+          h += `<div class="max-w-6xl w-full text-center animate-in zoom-in">
+            <p class="kicker text-2xl mb-8 opacity-60 font-black tracking-[0.4em] text-red-500">VITTIMA DEL KILLER</p>
+            <div class="w-64 h-64 rounded-full border-8 border-red-600 mx-auto overflow-hidden bg-white/5 mb-10 text-white grayscale opacity-60" style="box-shadow: 0 0 120px rgba(220,38,38,0.5);">
+              ${victim.photo ? `<img src="${victim.photo}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-8xl">👤</div>'}
+            </div>
+            <h1 class="text-[6rem] xl:text-[8rem] font-black playfair italic leading-none text-white" style="text-shadow: 0 0 80px rgba(220,38,38,0.6);">${victim.name}</h1>
+            <p class="mt-10 text-3xl italic opacity-80 playfair">"Il banchetto ha richiesto un ultimo sacrificio.<br>Nessuno è venuto a salvarti."</p>
+            <p class="mt-8 text-xl font-black uppercase tracking-widest text-red-500">Eliminato</p>
+          </div>`;
+      }
+  }
+  else if(ph==='final_question') {
+      // Gli ultimi sopravvissuti rispondono "chi è il killer?"
+      const killer = Object.values(window.state.players).find(p => p.role?.id === 'killer');
+      const survivors = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id));
+      const victimId = window.state.killerVictimId;
+      const protectedId = window.state.finalProtectedId;
+      const isVictimEliminated = (victimId && victimId !== protectedId);
+      // Chi può rispondere: tutti i non-killer ancora in gioco (escluso eliminato se non protetto)
+      const responders = survivors.filter(p => p.id !== killer.id && (p.id !== victimId || !isVictimEliminated));
+      const answered = Object.keys(window.state.finalAnswers || {}).filter(pid => responders.some(r => r.id === pid));
+      h += `<div class="max-w-7xl w-full text-center">
+        <p class="kicker text-2xl mb-4 opacity-60 font-black tracking-[0.4em] text-accent">LA DOMANDA FINALE</p>
+        <h1 class="text-[5rem] xl:text-[7rem] font-black playfair italic leading-none text-white mb-16" style="text-shadow: 0 0 60px rgba(192,138,60,0.4);">Chi è il Killer?</h1>
+        <div class="grid grid-cols-3 gap-8 mb-12">${survivors.map(p => {
+          const isVictim = (p.id === victimId && isVictimEliminated);
+          return `<div class="glass p-8 border-t-4 ${isVictim ? 'border-red-700 opacity-30 grayscale' : 'border-accent'} flex flex-col items-center">
+            <div class="w-32 h-32 rounded-full border-4 border-white/20 overflow-hidden bg-white/5 mb-4 text-white">${p.photo ? `<img src="${p.photo}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-5xl">👤</div>'}</div>
+            <p class="text-2xl font-black uppercase text-white mb-2">${p.name}</p>
+            <p class="text-[10px] opacity-50 uppercase tracking-widest">${isVictim ? 'Eliminato' : 'Sospettato'}</p>
+          </div>`;
+        }).join('')}</div>
+        <p class="text-xl opacity-60 italic">${answered.length} / ${responders.length} hanno risposto</p>
+      </div>`;
+  }
+  else if(ph==='final_verdict') {
+      // 20 secondi di suspence con scritta pulsante e barra di progresso dorata
+      h += `<div class="max-w-6xl w-full text-center">
+        <p class="kicker text-2xl mb-12 opacity-50 font-black tracking-[0.4em]">LA CASA HA DECISO</p>
+        <h1 class="text-[7rem] xl:text-[10rem] font-black playfair italic leading-none text-accent animate-pulse" style="text-shadow: 0 0 60px rgba(192,138,60,0.4);">IL VERDETTO<br>È SCRITTO</h1>
+        <div class="mt-20 mx-auto w-full max-w-3xl">
+          <div class="h-2 bg-white/5 rounded-full overflow-hidden">
+            <div id="verdict-progress-bar" class="h-full bg-gradient-to-r from-accent/40 via-accent to-accent/40" style="width: 0%; transition: width 0.3s linear;"></div>
+          </div>
+          <p class="mt-6 text-sm uppercase tracking-[0.3em] opacity-30 font-black" id="verdict-progress-label">In attesa del responso...</p>
+        </div>
+      </div>`;
+  }
+  else if(ph==='finale_winner') {
+      // Calcola il vincitore con la logica della meccanica finale
+      const winnerId = window.computeFinalWinner ? window.computeFinalWinner() : null;
+      const winner = winnerId ? window.state.players[winnerId] : null;
+      const killer = Object.values(window.state.players).find(p => p.role?.id === 'killer');
+      const isKillerWin = winner && killer && winner.id === killer.id;
+      if (!winner) {
+          h += `<h1 class="text-6xl font-black text-accent uppercase">Nessun sopravvissuto</h1>`;
+      } else {
+          h += `<div class="max-w-6xl w-full text-center animate-in zoom-in">
+            <p class="kicker text-2xl mb-8 opacity-60 font-black tracking-[0.4em] ${isKillerWin ? 'text-red-500' : 'text-accent'}">${isKillerWin ? 'IL KILLER È SOPRAVVISSUTO' : 'CHI HA SMASCHERATO IL KILLER'}</p>
+            <div class="w-64 h-64 xl:w-80 xl:h-80 rounded-full border-8 ${isKillerWin ? 'border-red-600' : 'border-accent'} mx-auto overflow-hidden bg-white/5 mb-10 text-white" style="box-shadow: 0 0 120px ${isKillerWin ? 'rgba(220,38,38,0.5)' : 'rgba(192,138,60,0.5)'};">
+              ${winner.photo ? `<img src="${winner.photo}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-9xl">👤</div>'}
+            </div>
+            <h1 class="text-[6rem] xl:text-[9rem] font-black playfair italic leading-none text-white" style="text-shadow: 0 0 80px ${isKillerWin ? 'rgba(220,38,38,0.6)' : 'rgba(192,138,60,0.6)'};">${winner.name}</h1>
+            <p class="mt-10 text-3xl italic opacity-70 playfair">"${isKillerWin ? 'Nessuno ha avuto il coraggio di accusarlo. La Casa ha un nuovo erede.' : 'La Casa ha scelto. Il banchetto è chiuso.'}"</p>
+            ${isKillerWin ? '' : `<p class="mt-8 text-xl font-black uppercase tracking-widest text-accent">${winner.points || 0} punti</p>`}
+            ${isKillerWin && killer ? '' : `<p class="mt-4 text-base opacity-50 uppercase tracking-widest">Il killer era: <span class="text-red-400 font-black">${killer?.name || '???'}</span></p>`}
+          </div>`;
+      }
+  }
   else h += `<h1 class="text-[5rem] font-black text-accent uppercase">IN ATTESA</h1>`;
   h += `</div>`; c.innerHTML = h;
   if(ph==='discussion') window.updateTimer('tv-timer-display');
+  if(ph==='final_verdict') {
+      // Anima la barra di progresso dorata per 20 secondi
+      const startTime = window.state.timerEndsAt ? (window.state.timerEndsAt - 20000) : Date.now();
+      const animateBar = () => {
+          const bar = document.getElementById('verdict-progress-bar');
+          const label = document.getElementById('verdict-progress-label');
+          if (!bar) return; // se l'utente è uscito dalla fase
+          const elapsed = Date.now() - startTime;
+          const pct = Math.min(100, (elapsed / 20000) * 100);
+          bar.style.width = pct + '%';
+          if (label) {
+              if (pct < 33) label.textContent = 'In attesa del responso...';
+              else if (pct < 66) label.textContent = 'La Casa sta scrivendo il nome...';
+              else if (pct < 100) label.textContent = 'Il sigillo sta per essere apposto...';
+              else label.textContent = 'Il nome è scritto. Pronti alla rivelazione.';
+          }
+          if (pct < 100) requestAnimationFrame(animateBar);
+      };
+      requestAnimationFrame(animateBar);
+  }
 };
 
 /** --- 6. VISTA ADMIN --- **/
@@ -444,7 +618,13 @@ window.drawAdmin = function(c) {
                    ph==='discussion' ? `<button onclick="window.patch({phase:'voting_verdict', verdictVotes:{}})" class="btn-gold w-full py-8 text-2xl font-black uppercase text-white text-white">VOTO SENTENZA FINALE</button>` :
                    ph==='voting_verdict' ? `<button onclick="window.patch({phase:'killer_mark'})" class="btn-gold w-full py-8 text-2xl font-black uppercase text-white text-white">MARCHIO DEL KILLER</button>` :
                    ph==='killer_mark' ? `<button onclick="window.patch({phase:'scoreboard'})" class="btn-gold w-full py-8 text-2xl font-black uppercase text-white text-white">MOSTRA CLASSIFICA ROUND</button>` :
-                   ph==='final_challenge' ? (window.state.currentDuel?.winnerId ? `<button onclick="window.nextDuel()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase text-white">PROSSIMO SFIDANTE</button>` : `<p class="text-accent uppercase font-black animate-pulse text-center">Duello in corso...</p>`) : "";
+                   ph==='final_challenge' ? (window.state.currentDuel?.winnerId ? `<button onclick="window.nextDuel()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase text-white">PROSSIMO SFIDANTE</button>` : `<p class="text-accent uppercase font-black animate-pulse text-center">Duello in corso...</p>`) :
+                   ph==='protection_vote' ? `<button onclick="window.closeProtectionVote()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">🕯️ CHIUDI VOTO SPIRITI</button>` :
+                   ph==='killer_choice' ? (window.state.killerVictimId ? `<button onclick="window.revealKillerVictim()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">🗡️ RIVELA LA VITTIMA</button>` : `<p class="text-red-500 uppercase font-black animate-pulse text-center">Il killer sta scegliendo...</p>`) :
+                   ph==='final_reveal_victim' ? `<button onclick="window.openFinalQuestion()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">⚖️ APRI DOMANDA FINALE</button>` :
+                   ph==='final_question' ? `<button onclick="window.closeFinalQuestion()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">🎲 CHIUDI ACCUSE</button>` :
+                   ph==='final_verdict' ? `<button onclick="window.patch({phase:'finale_winner'})" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">🎭 RIVELA IL VINCITORE</button>` :
+                   ph==='finale_winner' ? `<button onclick="window.patch({phase:'scoreboard'})" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">MOSTRA CLASSIFICA FINALE</button>` : "";
 
   c.innerHTML = `<div id="admin-root" class="p-8 max-w-6xl mx-auto text-white h-screen overflow-y-auto pb-48 text-left">
     <div class="flex justify-between items-center mb-8 glass p-6 border-white/10">
@@ -619,6 +799,54 @@ window.drawPlayer = function(c, pid = window.PLAYER_ID) {
               h += `</div>`;
           }
       }
+  } else if (ph === 'protection_vote' && window.state.deadIds.includes(pid)) {
+      // Solo i morti vedono questa schermata: votano un finalista da proteggere
+      const survivors = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id));
+      const alreadyVoted = (window.state.protectionVotes || {})[pid];
+      if (alreadyVoted) {
+          const protectedName = window.state.players[alreadyVoted]?.name || '???';
+          h += `<div class="bg-emerald-950/20 p-6 rounded-3xl border border-emerald-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-emerald-400 uppercase">Voto Inviato</p><p class="text-sm opacity-80">Hai scelto di proteggere <span class="text-emerald-400 font-black">${protectedName}</span>. Attendi gli altri spiriti...</p></div>`;
+      } else {
+          h += `<div class="bg-emerald-950/20 p-6 rounded-3xl border border-emerald-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-emerald-400 uppercase">Il Voto degli Spiriti</p><p class="text-xs mb-4 opacity-70">Tu sei già caduto. Scegli quale dei tre finalisti vuoi proteggere dall'ultima lama del killer.</p><div class="grid grid-cols-1 gap-2">` +
+            survivors.map(p => `<button onclick="window.castProtectionVote('${p.id}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
+      }
+  } else if (ph === 'killer_choice') {
+      // Solo il killer vede questa schermata: sceglie chi eliminare
+      if (me.role?.id === 'killer' && !window.state.deadIds.includes(pid)) {
+          const survivors = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id) && p.id !== pid);
+          const alreadyChosen = window.state.killerVictimId;
+          if (alreadyChosen) {
+              const victimName = window.state.players[alreadyChosen]?.name || '???';
+              h += `<div class="bg-red-950/20 p-6 rounded-3xl border border-red-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-red-500 uppercase">Scelta Effettuata</p><p class="text-sm opacity-80">Hai scelto di eliminare <span class="text-red-400 font-black">${victimName}</span>. Attendi che la Casa riveli il rito.</p></div>`;
+          } else {
+              h += `<div class="bg-red-950/20 p-6 rounded-3xl border border-red-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-red-500 uppercase">L'Ultima Vittima</p><p class="text-xs mb-4 opacity-70">Sei il killer. Scegli chi dei due eliminare prima della domanda finale: chi pensi ti stia sospettando di più?</p><div class="grid grid-cols-1 gap-2">` +
+                survivors.map(p => `<button onclick="window.castKillerChoice('${p.id}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
+          }
+      } else if (!window.state.deadIds.includes(pid)) {
+          // Gli altri finalisti aspettano
+          h += `<div class="bg-black/40 p-6 rounded-3xl border border-white/10 shadow-2xl text-white"><p class="kicker mb-4 text-accent uppercase">Attesa</p><p class="text-sm opacity-70 italic">Il killer sta decidendo il suo ultimo gesto. Non puoi fare nulla per ora.</p></div>`;
+      }
+  } else if (ph === 'final_question') {
+      // Tutti i sopravvissuti non-killer (esclusa l'eventuale vittima non protetta) rispondono
+      const killer = Object.values(window.state.players).find(p => p.role?.id === 'killer');
+      const victimId = window.state.killerVictimId;
+      const protectedId = window.state.finalProtectedId;
+      const isVictimEliminated = (victimId && victimId !== protectedId);
+      const canAnswer = !window.state.deadIds.includes(pid) && me.role?.id !== 'killer' && (pid !== victimId || !isVictimEliminated);
+      if (canAnswer) {
+          const alreadyAnswered = (window.state.finalAnswers || {})[pid];
+          if (alreadyAnswered) {
+              h += `<div class="bg-accent/10 p-6 rounded-3xl border border-accent/30 shadow-2xl text-white"><p class="kicker mb-4 text-accent uppercase">Risposta Inviata</p><p class="text-sm opacity-80 italic">Hai accusato qualcuno. La Casa attende il verdetto finale.</p></div>`;
+          } else {
+              const survivors = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id));
+              h += `<div class="bg-accent/10 p-6 rounded-3xl border border-accent/30 shadow-2xl text-white"><p class="kicker mb-4 text-accent uppercase">Chi è il Killer?</p><p class="text-xs mb-4 opacity-70">L'ultima accusa. Scegli con attenzione: solo chi indovina può vincere.</p><div class="grid grid-cols-1 gap-2">` +
+                survivors.map(p => `<button onclick="window.castFinalAnswer('${p.id}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
+          }
+      } else if (me.role?.id === 'killer') {
+          h += `<div class="bg-red-950/20 p-6 rounded-3xl border border-red-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-red-500 uppercase">Il Tuo Silenzio</p><p class="text-sm opacity-80 italic">Sei il killer. Resta in silenzio mentre gli altri ti accusano (o non ti accusano).</p></div>`;
+      } else if (pid === victimId && isVictimEliminated) {
+          h += `<div class="bg-black/40 p-6 rounded-3xl border border-white/10 shadow-2xl text-white opacity-50"><p class="kicker mb-4 uppercase">Eliminato</p><p class="text-sm italic">Il killer ti ha eliminato. Puoi solo osservare.</p></div>`;
+      }
   }
   c.innerHTML = h + `</div>`;
 };
@@ -783,10 +1011,108 @@ window.initDuel = function(p1Id, p2Id) {
 };
 
 window.submitDuelAnswer = function(pid, ans) { const d = {...window.state.currentDuel}; d.answers[pid][d.currentIdx] = ans; if (d.answers[d.p1Id][d.currentIdx] !== undefined && d.answers[d.p2Id][d.currentIdx] !== undefined) { if (d.answers[d.p1Id][d.currentIdx] === d.questions[d.currentIdx].correct) d.scores[d.p1Id]++; if (d.answers[d.p2Id][d.currentIdx] === d.questions[d.currentIdx].correct) d.scores[d.p2Id]++; if (d.currentIdx < 6) d.currentIdx++; else { if (d.scores[d.p1Id] >= d.scores[d.p2Id]) { d.winnerId = d.p1Id; d.loserId = d.p2Id; } else { d.winnerId = d.p2Id; d.loserId = d.p1Id; } } } window.patch({ currentDuel: d }); };
-window.nextDuel = function() { const d = window.state.currentDuel; const dead = [...window.state.deadIds, d.loserId]; const ps = Object.values(window.state.players).filter(p => !dead.includes(p.id)).sort((a,b) => a.points - b.points); if (ps.length <= 3) window.patch({ deadIds: dead, phase: 'scoreboard', currentDuel: null }); else { window.state.deadIds = dead; window.initDuel(d.winnerId, ps.find(p => p.id !== d.winnerId).id); } };
+window.nextDuel = function() { 
+  const d = window.state.currentDuel; 
+  const dead = [...window.state.deadIds, d.loserId]; 
+  const ps = Object.values(window.state.players).filter(p => !dead.includes(p.id)).sort((a,b) => a.points - b.points); 
+  if (ps.length <= 3) { 
+    // Restano 3 vivi: parte la meccanica finale a 3
+    // Resetta lo stato della meccanica finale
+    window.patch({ 
+      deadIds: dead, 
+      phase: 'protection_vote', 
+      currentDuel: null,
+      protectionVotes: {},
+      finalProtectedId: null,
+      killerVictimId: null,
+      killerEliminated: false,
+      finalAnswers: {}
+    });
+  } else { 
+    window.state.deadIds = dead; 
+    window.initDuel(d.winnerId, ps.find(p => p.id !== d.winnerId).id); 
+  } 
+};
+
+// --- MECCANICA FINALE A 3 ---
+
+// Un morto vota per proteggere un finalista
+window.castProtectionVote = function(targetFinalistId) {
+  const votes = { ...(window.state.protectionVotes || {}) };
+  votes[window.PLAYER_ID] = targetFinalistId;
+  window.patch({ protectionVotes: votes });
+};
+
+// La regia chiude la fase di protezione: calcola il finalista più votato
+window.closeProtectionVote = function() {
+  const votes = window.state.protectionVotes || {};
+  const tally = {};
+  Object.values(votes).forEach(fid => { tally[fid] = (tally[fid] || 0) + 1; });
+  let protectedId = null;
+  let maxVotes = 0;
+  // Parità: vince chi ha più punti
+  Object.entries(tally).forEach(([fid, count]) => {
+    if (count > maxVotes) { maxVotes = count; protectedId = fid; }
+    else if (count === maxVotes && protectedId) {
+      const a = window.state.players[fid]?.points || 0;
+      const b = window.state.players[protectedId]?.points || 0;
+      if (a > b) protectedId = fid;
+    }
+  });
+  window.patch({ finalProtectedId: protectedId, phase: 'killer_choice' });
+};
+
+// Il killer sceglie chi eliminare tra i due non-killer rimasti
+window.castKillerChoice = function(victimId) {
+  window.patch({ killerVictimId: victimId });
+};
+
+// La regia rivela la vittima del killer (e se era protetta)
+window.revealKillerVictim = function() {
+  const victimId = window.state.killerVictimId;
+  const protectedId = window.state.finalProtectedId;
+  const eliminated = (victimId && victimId !== protectedId);
+  window.patch({ killerEliminated: eliminated, phase: 'final_reveal_victim' });
+};
+
+// La regia apre la domanda finale "chi è il killer?"
+window.openFinalQuestion = function() {
+  window.patch({ phase: 'final_question', finalAnswers: {} });
+};
+
+// Un giocatore risponde alla domanda finale
+window.castFinalAnswer = function(guessedKillerId) {
+  const ans = { ...(window.state.finalAnswers || {}) };
+  ans[window.PLAYER_ID] = guessedKillerId;
+  window.patch({ finalAnswers: ans });
+};
+
+// La regia chiude la domanda finale e va in suspence
+window.closeFinalQuestion = function() {
+  window.patch({ phase: 'final_verdict', timerEndsAt: Date.now() + 20000 });
+};
+
+// Calcola il vincitore in base alle risposte finali
+window.computeFinalWinner = function() {
+  const killer = Object.values(window.state.players).find(p => p.role?.id === 'killer');
+  const survivors = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id));
+  const killerVictimId = window.state.killerVictimId;
+  const wasProtected = (killerVictimId === window.state.finalProtectedId);
+  // I giocatori non-killer eligibili a vincere: i 2 non-killer tra i sopravvissuti, MENO la vittima se non protetta
+  const eligible = survivors.filter(p => p.id !== killer.id && (p.id !== killerVictimId || wasProtected));
+  // Chi ha indovinato?
+  const correctGuessers = eligible.filter(p => (window.state.finalAnswers || {})[p.id] === killer.id);
+  if (correctGuessers.length === 0) {
+    // Vince il killer
+    return killer.id;
+  }
+  // Vince il guesser con più punti (parità → primo trovato)
+  correctGuessers.sort((a,b) => (b.points || 0) - (a.points || 0));
+  return correctGuessers[0].id;
+};
 window.simulateNotes = function() { const ps = { ...window.state.players }; const ids = Object.keys(ps); ids.forEach((id, i) => { const n = ps[ids[(i+1)%ids.length]].name; ps[id].notes = `Indossa un ${["maglione bordeaux", "vestito nero", "cardigan grigio"][i%3]}. Alla destra di ${n}. Ha bevuto alcool. Molto difensivo.`; }); window.patch({ players: ps }); };
 window.updateTimer = function(id) { const el = document.getElementById(id); if(el && window.state.timerEndsAt) { const tick = () => { const left = Math.max(0, window.state.timerEndsAt - Date.now()); const m = String(Math.floor(left/60000)).padStart(2,'0'); const s = String(Math.floor((left%60000)/1000)).padStart(2,'0'); if(el) el.textContent = `${m}:${s}`; if(left > 0 && window.state.phase === 'discussion') requestAnimationFrame(tick); }; requestAnimationFrame(tick); } };
-window.doReset = async function() { const clean = { phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, deadIds: [], currentDuel: null, apparition: null, anomaly: null, powerUses: {}, activePowerUI: {}, protectedId: null }; Object.keys(window.state).forEach(k => { if (k.startsWith('thesis_')) clean[k] = null; }); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: clean }); window.state = clean; window.render(); };
+window.doReset = async function() { const clean = { phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, deadIds: [], currentDuel: null, apparition: null, anomaly: null, powerUses: {}, activePowerUI: {}, protectedId: null, protectionVotes: {}, finalProtectedId: null, killerVictimId: null, killerEliminated: false, finalAnswers: {} }; Object.keys(window.state).forEach(k => { if (k.startsWith('thesis_')) clean[k] = null; }); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: clean }); window.state = clean; window.render(); };
 
 window.onload = function() { window.sync(); setInterval(window.sync, 2500); window.render(); };
 
@@ -815,9 +1141,14 @@ window.onload = function() { window.sync(); setInterval(window.sync, 2500); wind
     'select_thesis':    TRACKS.tema_delitto_voti,
     'voting_suspect':   TRACKS.tema_delitto_voti,
     'voting_verdict':   TRACKS.tema_delitto_voti,
-    'killer_mark':      TRACKS.marcia_fumo_spento,
-    'final_challenge':  TRACKS.marcia_fumo_spento,
-    'finale_winner':    TRACKS.tema_delitto_winner
+    'killer_mark':         TRACKS.marcia_fumo_spento,
+    'final_challenge':     TRACKS.marcia_fumo_spento,
+    'protection_vote':     TRACKS.marcia_fumo_spento,
+    'killer_choice':       TRACKS.marcia_fumo_spento,
+    'final_reveal_victim': TRACKS.marcia_fumo_spento,
+    'final_question':      TRACKS.marcia_fumo_spento,
+    'final_verdict':       TRACKS.marcia_fumo_spento,
+    'finale_winner':       TRACKS.tema_delitto_winner
   };
 
   // Un singolo elemento <audio> riutilizzabile per tutte le tracce
