@@ -560,18 +560,40 @@ window.drawTV = function(c) {
       const winner = winnerId ? window.state.players[winnerId] : null;
       const killer = Object.values(window.state.players).find(p => p.role?.id === 'killer');
       const isKillerWin = winner && killer && winner.id === killer.id;
+      // Info sulla vicenda per arricchire la motivazione
+      const victimId = window.state.killerVictimId;
+      const protectedId = window.state.finalProtectedId;
+      const protectedPlayer = protectedId ? window.state.players[protectedId] : null;
+      const victimPlayer = victimId ? window.state.players[victimId] : null;
+      const victimWasProtected = (victimId && victimId === protectedId);
+      // Decidi la frase narrativa
+      let kicker = '';
+      let phrase = '';
       if (!winner) {
           h += `<h1 class="text-6xl font-black text-accent uppercase">Nessun sopravvissuto</h1>`;
       } else {
+          if (isKillerWin) {
+              kicker = 'IL KILLER È SOPRAVVISSUTO';
+              phrase = '"Nessuno ha avuto il coraggio (o l\'intuito) di accusarlo. La Casa ha un nuovo erede."';
+          } else if (winnerId === protectedId && victimWasProtected) {
+              kicker = 'SALVATO DAGLI SPIRITI';
+              phrase = '"Gli spiriti hanno fermato la lama del killer, e lui ha avuto la lucidità di smascherarlo."';
+          } else if (winnerId === protectedId) {
+              kicker = 'PROTETTO E VINCITORE';
+              phrase = '"Gli spiriti lo hanno scelto. E lui ha scelto la verità."';
+          } else {
+              kicker = 'CHI HA SMASCHERATO IL KILLER';
+              phrase = '"La Casa ha scelto. Il banchetto è chiuso."';
+          }
           h += `<div class="max-w-6xl w-full text-center animate-in zoom-in">
-            <p class="kicker text-2xl mb-8 opacity-60 font-black tracking-[0.4em] ${isKillerWin ? 'text-red-500' : 'text-accent'}">${isKillerWin ? 'IL KILLER È SOPRAVVISSUTO' : 'CHI HA SMASCHERATO IL KILLER'}</p>
+            <p class="kicker text-2xl mb-8 opacity-60 font-black tracking-[0.4em] ${isKillerWin ? 'text-red-500' : 'text-accent'}">${kicker}</p>
             <div class="w-64 h-64 xl:w-80 xl:h-80 rounded-full border-8 ${isKillerWin ? 'border-red-600' : 'border-accent'} mx-auto overflow-hidden bg-white/5 mb-10 text-white" style="box-shadow: 0 0 120px ${isKillerWin ? 'rgba(220,38,38,0.5)' : 'rgba(192,138,60,0.5)'};">
               ${winner.photo ? `<img src="${winner.photo}" class="w-full h-full object-cover">` : '<div class="w-full h-full flex items-center justify-center text-9xl">👤</div>'}
             </div>
             <h1 class="text-[6rem] xl:text-[9rem] font-black playfair italic leading-none text-white" style="text-shadow: 0 0 80px ${isKillerWin ? 'rgba(220,38,38,0.6)' : 'rgba(192,138,60,0.6)'};">${winner.name}</h1>
-            <p class="mt-10 text-3xl italic opacity-70 playfair">"${isKillerWin ? 'Nessuno ha avuto il coraggio di accusarlo. La Casa ha un nuovo erede.' : 'La Casa ha scelto. Il banchetto è chiuso.'}"</p>
-            ${isKillerWin ? '' : `<p class="mt-8 text-xl font-black uppercase tracking-widest text-accent">${winner.points || 0} punti</p>`}
-            ${isKillerWin && killer ? '' : `<p class="mt-4 text-base opacity-50 uppercase tracking-widest">Il killer era: <span class="text-red-400 font-black">${killer?.name || '???'}</span></p>`}
+            <p class="mt-10 text-3xl italic opacity-70 playfair">${phrase}</p>
+            ${isKillerWin ? '' : `<p class="mt-8 text-base opacity-50 uppercase tracking-widest">Il killer era: <span class="text-red-400 font-black">${killer?.name || '???'}</span></p>`}
+            ${protectedPlayer ? `<p class="mt-2 text-base opacity-50 uppercase tracking-widest">Gli spiriti avevano protetto: <span class="text-emerald-400 font-black">${protectedPlayer.name}</span></p>` : ''}
           </div>`;
       }
   }
@@ -1105,20 +1127,54 @@ window.closeFinalQuestion = function() {
 
 // Calcola il vincitore in base alle risposte finali
 window.computeFinalWinner = function() {
+  // Logica della meccanica finale a 3 con voto morti + scelta killer + domanda "chi è il killer?"
+  // Casi:
+  // - Tutti e 3 i finalisti votano (compreso il killer, ma il suo voto non conta per "indovinare")
+  // - La vittima del killer è eliminata SOLO se non era protetta dai morti
+  // - Vince un non-killer se ha indovinato; in caso di doppia indovinata vince il protetto
+  // - Se nessun non-killer eligibile indovina → vince il killer
+  // - I punti partita NON contano: la vittoria dipende solo da indovinata + protezione
+  
   const killer = Object.values(window.state.players).find(p => p.role?.id === 'killer');
   const survivors = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id));
-  const killerVictimId = window.state.killerVictimId;
-  const wasProtected = (killerVictimId === window.state.finalProtectedId);
-  // I giocatori non-killer eligibili a vincere: i 2 non-killer tra i sopravvissuti, MENO la vittima se non protetta
-  const eligible = survivors.filter(p => p.id !== killer.id && (p.id !== killerVictimId || wasProtected));
-  // Chi ha indovinato?
-  const correctGuessers = eligible.filter(p => (window.state.finalAnswers || {})[p.id] === killer.id);
+  if (!killer) {
+    // Caso edge: nessun killer tra i sopravvissuti (es. è stato eliminato in un duello precedente).
+    // Vince chi tra i sopravvissuti ha più punti.
+    const sorted = survivors.sort((a,b) => (b.points||0) - (a.points||0));
+    return sorted[0]?.id || null;
+  }
+  
+  const victimId = window.state.killerVictimId;
+  const protectedId = window.state.finalProtectedId;
+  const isVictimEliminated = (victimId && victimId !== protectedId);
+  const answers = window.state.finalAnswers || {};
+  
+  // I non-killer eligibili a vincere: tutti i non-killer sopravvissuti TRANNE la vittima se non protetta
+  const eligible = survivors.filter(p => 
+    p.id !== killer.id && (p.id !== victimId || !isVictimEliminated)
+  );
+  
+  // Chi tra gli eligibili ha indovinato che il killer è il killer?
+  const correctGuessers = eligible.filter(p => answers[p.id] === killer.id);
+  
   if (correctGuessers.length === 0) {
-    // Vince il killer
+    // Nessun non-killer eligibile ha indovinato → vince il killer
     return killer.id;
   }
-  // Vince il guesser con più punti (parità → primo trovato)
-  correctGuessers.sort((a,b) => (b.points || 0) - (a.points || 0));
+  
+  if (correctGuessers.length === 1) {
+    // Un solo non-killer eligibile ha indovinato → vince lui
+    return correctGuessers[0].id;
+  }
+  
+  // Più di uno ha indovinato (doppia indovinata):
+  // - Se uno dei due indovinati era stato protetto dai morti → vince il protetto
+  // - Altrimenti: caso edge, vince il primo trovato (improbabile in pratica)
+  const protectedGuesser = correctGuessers.find(p => p.id === protectedId);
+  if (protectedGuesser) return protectedGuesser.id;
+  
+  // Fallback: se nessuno dei guessers era protetto (caso teoricamente impossibile se i morti hanno votato),
+  // prendi il primo. In ogni caso "i punti non contano".
   return correctGuessers[0].id;
 };
 window.simulateNotes = function() { const ps = { ...window.state.players }; const ids = Object.keys(ps); ids.forEach((id, i) => { const n = ps[ids[(i+1)%ids.length]].name; ps[id].notes = `Indossa un ${["maglione bordeaux", "vestito nero", "cardigan grigio"][i%3]}. Alla destra di ${n}. Ha bevuto alcool. Molto difensivo.`; }); window.patch({ players: ps }); };
@@ -1126,7 +1182,7 @@ window.updateTimer = function(id) { const el = document.getElementById(id); if(e
 window.doReset = async function() { const clean = { phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, deadIds: [], currentDuel: null, apparition: null, anomaly: null, powerUses: {}, activePowerUI: {}, protectedId: null, protectionVotes: {}, finalProtectedId: null, killerVictimId: null, killerEliminated: false, finalAnswers: {} }; Object.keys(window.state).forEach(k => { if (k.startsWith('thesis_')) clean[k] = null; }); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: clean }); window.state = clean; window.render(); };
 
 window.onload = function() { 
-  console.log('%c[L\'Ultimo Brindisi] Versione: 2026-05-15-killer-punti', 'background:#c08a3c;color:#000;font-weight:bold;padding:4px 8px;');
+  console.log('%c[L\'Ultimo Brindisi] Versione: 2026-05-15-finale-logica-completa', 'background:#c08a3c;color:#000;font-weight:bold;padding:4px 8px;');
   window.sync(); setInterval(window.sync, 2500); window.render(); 
 };
 
