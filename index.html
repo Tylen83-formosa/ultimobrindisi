@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>L’Ultimo Brindisi — Casa Valenti ✨</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+    
+    :root {
+      --bg: #030305; --accent: #c08a3c; --accent-glow: rgba(192, 138, 60, 0.4);
+      --panel: rgba(15, 15, 20, 0.95); --panel-border: rgba(255, 255, 255, 0.08);
+      --gold-gradient: linear-gradient(135deg, #b17631, #e3b873, #b17631);
+    }
+
+    body { background-color: var(--bg); color: #f3efe6; font-family: 'Inter', sans-serif; min-height: 100vh; margin: 0; overflow-x: hidden; }
+    h1, h2, h3, .playfair { font-family: 'Playfair Display', serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .glass { background: var(--panel); backdrop-filter: blur(30px); border: 1px solid var(--panel-border); box-shadow: 0 40px 100px rgba(0,0,0,0.8); border-radius: 32px; }
+    .kicker { letter-spacing: 0.4em; text-transform: uppercase; color: var(--accent); font-size: 0.7rem; font-weight: 900; }
+    .btn-gold { background: var(--gold-gradient); color: #000; font-weight: 900; border-radius: 16px; transition: 0.3s; cursor: pointer; text-transform: uppercase; border:none; padding: 12px 24px; }
+    .btn-gold:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 20px var(--accent-glow); }
+    .btn-gold:disabled { filter: grayscale(1); opacity: 0.3; cursor: not-allowed; }
+
+    .ranking-grid { display: grid; grid-template-columns: 1fr 100px 100px 120px; gap: 15px; align-items: center; width: 100%; }
+    .rank-val { font-weight: 900; text-align: center; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+    .rank-pts { color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); font-size: 2rem; }
+    .rank-row { transition: 0.5s; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+    .status-badge { font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; font-weight: 900; text-transform: uppercase; margin-left: 4px; }
+    .badge-alert { background: #dc2626; color: white; }
+    .badge-info { background: #2563eb; color: white; }
+    .badge-success { background: #10b981; color: white; }
+    .badge-ghost { background: #7c3aed; color: white; }
+    .badge-bot { background: #4b5563; color: white; }
+    
+    .story-card-tv {
+      border-left: 10px solid var(--accent);
+      background: linear-gradient(90deg, rgba(192, 138, 60, 0.1), transparent);
+      padding: 2.5rem; border-radius: 0 32px 32px 0; font-style: italic;
+      font-size: 1.8rem; line-height: 1.6; max-width: 85%; margin: 0 auto; text-align: center;
+    }
+
+    .gm-note {
+        background: rgba(192, 138, 60, 0.05);
+        border: 1px solid rgba(192, 138, 60, 0.2);
+        padding: 1rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: #e3b873;
+    }
+
+    .peek-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 50000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+    .phone-frame { width: 380px; height: 750px; background: #000; border: 12px solid #222; border-radius: 40px; position: relative; overflow: hidden; box-shadow: 0 0 100px rgba(0,0,0,1); }
+    .phone-screen { width: 100%; height: 100%; overflow-y: auto; background: var(--bg); position: relative; }
+    
+    .admin-step.active { background: var(--accent); color: #000; font-weight: 900; border-color: var(--accent); }
+    .timer-tv { font-size: 8rem; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--accent); text-shadow: 0 0 40px var(--accent-glow); line-height: 1; }
+
+    .file-input-label { display: block; width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.2); border-radius: 12px; cursor: pointer; text-align: center; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; transition: 0.3s; }
+    .file-input-label:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); }
+    input[type="file"] { display: none; }
+
+    .duel-card { border: 2px solid var(--accent); background: linear-gradient(180deg, rgba(192, 138, 60, 0.1), transparent); }
+    .ghost-overlay { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .ghost-animation { font-size: 10rem; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 0 30px #7c3aed); }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+    /* Stile per il QR Code */
+    .qr-container { background: white; padding: 1.5rem; border-radius: 2rem; box-shadow: 0 0 60px var(--accent-glow); transition: 0.5s; }
+    .qr-container:hover { transform: scale(1.05); }
+
+    .view-switcher.hidden-nav { display: none; }
+  </style>
+</head>
+<body>
+
+<div id="modal-overlay" class="hidden fixed inset-0 bg-black/98 z-[20000] flex items-center justify-center p-6 backdrop-blur-xl text-white">
+  <div class="glass p-10 max-w-lg w-full text-center border-t-4 border-accent shadow-2xl">
+    <h3 class="text-3xl font-black mb-4 accent-text uppercase playfair text-white" id="modal-title"></h3>
+    <div id="modal-message" class="mb-10 opacity-80 text-lg leading-relaxed text-white"></div>
+    <div id="modal-buttons" class="flex justify-center gap-4 flex-wrap"></div>
+  </div>
+</div>
+
+<div id="peek-container" class="hidden peek-overlay">
+  <button onclick="window.closePeek()" class="absolute top-10 right-10 bg-white/10 hover:bg-red-600 w-12 h-12 rounded-full flex items-center justify-center text-white z-[50001]">×</button>
+  <div class="phone-frame">
+      <div id="peek-screen" class="phone-screen no-scrollbar"></div>
+  </div>
+</div>
+
+<div id="app"></div>
+
+<!-- Switcher di visualizzazione: visibile solo se NON siamo in visuale player -->
+<div id="master-nav" class="view-switcher fixed bottom-5 left-1/2 -translate-x-1/2 z-[9999] bg-black/90 p-1 rounded-full flex gap-1 border border-white/10 shadow-2xl">
+  <button onclick="window.setView('player')" id="btn-v-player" class="px-6 py-2 text-[10px] font-black uppercase rounded-full transition duration-300 text-white hover:bg-white/10">Telefono</button>
+  <button onclick="window.setView('tv')" id="btn-v-tv" class="px-6 py-2 text-[10px] font-black uppercase rounded-full transition duration-300 text-white hover:bg-white/10">Schermo TV</button>
+  <button onclick="window.setView('admin')" id="btn-v-admin" class="px-6 py-2 text-[10px] font-black uppercase rounded-full transition duration-300 text-white hover:bg-white/10">Regia</button>
+</div>
+
+<script>
+/** --- 0. PREMESSA NARRATIVA --- **/
+window.PREMISE = "Benvenuti a Casa Valenti. Sette anni fa, durante un brindisi celebrativo, il patriarca Ettore morì avvelenato. Nessun colpevole fu mai trovato, ma stasera la Casa ha deciso di riaprire i suoi archivi. Le mura ricordano ogni sussurro, ogni sguardo traditore. Uno di voi ha versato il veleno. Gli altri hanno aiutato a coprire l'orrore. Il banchetto finale è iniziato.";
+
+/** --- 1. DATI ARCHIVI INTEGRALI --- **/
+window.ROUNDS = [
+  { 
+    id: 1, title: "Archivio 01 — Il Primo Sorso", 
+    story: "Sette anni fa, il banchetto iniziò con un brindisi solenne. Ettore sembrava stranamente teso, fissando uno dei presenti con un sospetto che non riusciva a nascondere. Fu la prima volta che qualcuno osò contraddirlo apertamente davanti a tutti.",
+    question: "Chi tra i presenti ha l'indole di chi non abbassa mai la testa, pronto a sfidare l'autorità anche a costo di distruggere l'armonia del gruppo?",
+    labels:{suspect:"Il Ribelle", accuser:"L'Autoritario", defender:"Il Mediatore"},
+    gmGuide: "Il senso di questo round è testare il coraggio e la 'leadership distruttiva'. Ettore era un tiranno amato. Chi lo ha sfidato per primo è colui che ha rotto l'incantesimo della sua invulnerabilità. Guida il gruppo a identificare chi è allergico al comando altrui.",
+    thesis:{ 
+        suspect: ["Non è ribellione, è dignità. Ettore stava soffocando la nostra libertà e io sono stato l'unico a dirlo.", "Il suo sguardo mi cercava perché sapeva che non potevo essere comprato. Ero la minaccia al suo ordine perfetto.", "Mi accusate di essere una testa calda, ma in realtà sono l'unico che vede la verità oltre la recita."], 
+        accuser: ["Il tuo orgoglio è una bomba a orologeria. Quella sera hai piantato il seme della discordia solo per metterti al centro della scena.", "Non sopporti che qualcuno comandi più di te. Hai sfidato Ettore non per giustizia, ma per invidia.", "Vedo nel tuo sguardo lo stesso fuoco distruttivo di sette anni fa. Sei il caos travestito da coraggio."], 
+        defender: ["Senza quel momento di rottura, saremmo ancora tutti schiavi di un uomo che non ci rispettava.", "Lo chiamate ribelle, ma è stato l'unico a dare voce ai dubbi che avevamo tutti quanti.", "A volte serve qualcuno che rompa il ghiaccio, anche se il ghiaccio è fatto di sangue e segreti."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"Manovra di Potere", desc: "La sfida era solo un modo per testare la solidità del patriarca e usurparne il ruolo."}, 
+        {id:"sociale", label:"Rottura del Patto", desc: "Il gruppo ha permesso lo scontro per vedere chi sarebbe rimasto in piedi tra le macerie."}, 
+        {id:"oscura", label:"Richiamo del Vuoto", desc: "Era il primo segnale che la Casa aveva deciso di divorare il suo padrone."} 
+    ]
+  },
+  { 
+    id: 2, title: "Archivio 02 — Il Patto Macchiato", 
+    story: "Ettore scoprì che un segreto vitale era stato venduto a un rivale. Venne messo a tacere dal veleno prima di poter denunciare il tradimento.",
+    question: "Chi tra i presenti ha l'indole di chi, per una somma di denaro risolutiva, venderebbe il segreto più intimo del proprio migliore amico?",
+    labels:{suspect:"Il Sospettato", accuser:"L'Accusatore", defender:"Il Difensore"},
+    gmGuide: "Qui esploriamo l'avidità. La domanda non è solo sui soldi, ma sul valore che ognuno dà alla lealtà. Ettore è morto perché la verità era troppo costosa. Spingi i commensali a discutere di quanto valga la loro 'amicizia'.",
+    thesis:{ 
+        suspect: ["Mi avete scelto per il mio pragmatismo. Se si tratta di tutelare i miei interessi o la mia incolumità, non guardo in faccia a nessuno.", "Il denaro non è sporco, è solo uno strumento. Ho venduto un'informazione per comprare la nostra libertà.", "In questa casa i segreti sono valuta. Ho solo fatto l'investimento migliore prima che lo facesse qualcun altro."], 
+        accuser: ["Ti ho votato perché anteponi sempre il profitto al legame che ci unisce. Il tuo sguardo è quello di chi ha già venduto la propria integrità.", "La tua avidità ha un odore nauseante. Hai trasformato la nostra storia in una transazione commerciale.", "C'è un'ombra nel modo in cui calcoli il valore delle persone. Sei capace di svendere anche l'ultimo briciolo di umanità."], 
+        defender: ["Lo accusate di tradimento, ma il suo cinismo è l'unica risorsa che ci tiene a galla mentre voi vi rifugiate in sterili moralismi.", "Senza quel capitale, oggi non saremmo qui a banchettare. È stato un sacrificio sociale necessario.", "Il mondo è crudele, lui ha solo accettato le regole del gioco prima degli altri per proteggere il gruppo."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"Il Prezzo dell'Uomo", desc: "La verità è subordinata al profitto. In questo ramo, l'individuo prevale sull'amicizia e la lealtà."}, 
+        {id:"sociale", label:"La Catena dell'Odio", desc: "Il tradimento è un atto collettivo. Ci si unisce nel silenzio per preservare il prestigio del gruppo."}, 
+        {id:"oscura", label:"Il Tributo Oscuro", desc: "Il denaro è solo un simbolo. L'atto serve a nutrire l'oscurità e la corruzione che abita la Casa."} 
+    ]
+  },
+  { 
+    id: 3, title: "Archivio 03 — La Scivolata del Diritto",
+    story: "Sette anni fa, la colpa non fu espiata, ma occultata dietro sofismi giuridici. Il gruppo fu convinto che l'omicidio fosse una necessità strategica.",
+    question: "Chi possiede la dialettica più manipolatoria, capace di trasformare una meschinità in un atto di ingegno?",
+    labels:{suspect:"Il Sofista", accuser:"La Vittima", defender:"L'Architetto"},
+    gmGuide: "Focus sulla manipolazione verbale. Chi è il commensale che sa sempre come avere ragione? L'admin deve osservare chi cerca di dominare il discorso con la logica piuttosto che con l'emozione.",
+    thesis:{ 
+        suspect: ["La chiamate manipolazione, ma io offro solo ordine al caos. Senza una narrazione coerente, saremmo tutti prigionieri del rimorso.", "Le parole sono armi. Ho solo usato la logica per impedire che la verità ci distruggesse tutti quanti.", "Ho riscritto la storia perché la versione originale era insopportabile."], 
+        accuser: ["Sei capace di ridefinire la realtà fino a convincerci che una scelta vile sia stata una manovra necessaria.", "La tua eloquenza è un veleno lento. Ci hai fatto credere che l'orrore fosse giustizia.", "Nascondi la tua crudeltà dietro paragrafi legali."], 
+        defender: ["Vi disturba la sua eloquenza, ma le sue parole mettono a tacere i dubbi.", "Abbiamo tutti accettato la sua versione. È l'architetto della nostra sopravvivenza.", "C'è una bellezza oscura nel modo in cui ha ripulito il passato."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"Legittima Difesa", desc: "L'omicidio è giustificato come mossa difensiva per la propria posizione sociale."}, 
+        {id:"sociale", label:"Contratto Sociale", desc: "L'accordo di mentire insieme diventa la nuova legge del banchetto."}, 
+        {id:"oscura", label:"L'Assoluzione del Vuoto", desc: "Le parole perdono significato. La Casa inghiotte la morale nel silenzio assordante."} 
+    ]
+  },
+  { 
+    id: 4, title: "Archivio 04 — La Chimica dell'Ego",
+    story: "Il delitto non fu un gesto impulsivo: un individuo stabilì che il proprio orgoglio avesse la precedenza sulla vita del patriarca.",
+    question: "Chi possiede l'ego più ipertrofico, disposto a sacrificare i legami pur di non accettare l'inferiorità?",
+    labels:{suspect:"L'Orgoglioso", accuser:"Il Rivale", defender:"L'Adulatore"},
+    gmGuide: "L'ego è il motore del delitto. Questo round cerca chi ha bisogno di sentirsi 'superiore' agli altri. Ettore era il sole, l'assassino voleva spegnerlo per brillare di luce propria.",
+    thesis:{ 
+        suspect: ["In questa gerarchia si può solo dominare o servire. Io ho scelto di non chinarmi più.", "La mia ambizione è l'unico motore di questa famiglia. Ettore era un ostacolo.", "Ho solo preso il posto che mi spettava di diritto."], 
+        accuser: ["La tua ossessione per il potere rischia di rovinarci tutti.", "Hai ucciso il rispetto per nutrire la tua vanità. Sei il vuoto travestito da re.", "Il tuo ego ha bisogno del sangue altrui per brillare."], 
+        defender: ["Lo criticate, ma è stato l'unico a rivendicare dignità quando venivamo umiliati.", "L'orgoglio è ciò che ci tiene uniti contro il resto del mondo.", "Lui ha avuto il coraggio di essere grande, a differenza vostra."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"La Scalata al Potere", desc: "Il successo personale giustifica l'eliminazione dei predecessori ingombranti."}, 
+        {id:"sociale", label:"L'Ultima Umiliazione", desc: "La vittima doveva morire per essere finalmente ridimensionata agli occhi del gruppo."}, 
+        {id:"oscura", label:"La Trasmutazione", desc: "L'ego si fonde con la Casa. L'assassino diventa il nuovo cuore nero del banchetto."} 
+    ]
+  },
+  { 
+    id: 5, title: "Archivio 05 — Sotto il Suo Occhio",
+    story: "L'eliminazione del patriarca fu presentata come un sacrificio necessario a restaurare l'ordine e la purezza originaria del gruppo.",
+    question: "Chi tra voi manifesta il fanatismo più radicale, pronto a immolare la logica e l'umanità sull'altare di un'ideologia superiore?",
+    labels:{suspect:"Il Fanatico", accuser:"L'Eretico", defender:"Il Fedele"},
+    gmGuide: "Esplora il giustificazionismo morale o religioso. Ettore è morto non per odio, ma per 'principio'. Chi è il commensale che pensa di avere la verità assoluta in tasca?",
+    thesis:{ 
+        suspect: ["Vengo accusato per la mia fermezza morale. Senza principi regnerebbe l'anarchia.", "Il fine giustifica i mezzi se il fine è la purezza della missione.", "Non sono un fanatico, sono un fedele devoto alla Casa Valenti."], 
+        accuser: ["Il tuo rigore è solo uno strumento di prevaricazione.", "Usi la fede come una mannaia contro i tuoi stessi amici.", "Hai sacrificato la nostra umanità a un dio crudele e silenzioso."], 
+        defender: ["La sua integrità rappresenta l'ultimo argine contro il decadimento.", "Serve qualcuno che creda in qualcosa di più grande del profitto.", "Nel suo fervore c'è la forza che ci serve per affrontare l'abisso."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"Epurazione Amici", desc: "La purezza si ottiene eliminando chiunque sia considerato debole o non conforme."}, 
+        {id:"sociale", label:"Ritorno Tradizione", desc: "Il delitto restaura le vecchie, rigide abitudini che il patriarca voleva cambiare."}, 
+        {id:"oscura", label:"Messia Oscuro", desc: "Si uccide per obbedire a una visione superiore che solo il killer può vedere."} 
+    ]
+  },
+  { 
+    id: 6, title: "Archivio 06 — L'Anomalia Empatica",
+    story: "Sette anni fa, la morte del patriarca non fu dettata dall'odio, ma da una fredda curiosità sperimentale, analizzata con distaccata indifferenza.",
+    question: "Chi appare capace della più assoluta anaffettività, osservando le sofferenze altrui senza battere ciglio?",
+    labels:{suspect:"L'Indifferente", accuser:"L'Emotivo", defender:"L'Osservatore"},
+    gmGuide: "Focus sulla sociopatia. L'assassino potrebbe essere qualcuno che non prova rimorso perché non prova sentimenti. Chi tra loro sembra 'vuoto' o troppo calmo sotto pressione?",
+    thesis:{ 
+        suspect: ["L'assenza di emotività non è crudeltà, ma oggettività analitica.", "Le emozioni sono rumore che distrae dalla realtà biologica.", "Non provo nulla perché in questa Casa non c'è nulla da provare."], 
+        accuser: ["Ci osservi come fossimo soggetti clinici in una teca.", "Il tuo silenzio è un vuoto che divora ogni calore umano.", "Non hai mai pianto per Ettore, non piangerai mai per noi."], 
+        defender: ["In questo caos serve lucidità analitica, non lacrime.", "La sua indifferenza è la nostra protezione contro il rimorso.", "C'è una pace profonda nel suo sguardo distaccato."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"Sociopatia Strategica", desc: "L'anaffettività diventa l'unico strumento per governare senza sensi di colpa."}, 
+        {id:"sociale", label:"Indifferenza Collettiva", desc: "Nessuno prova dolore perché il gruppo ha deciso che la vittima era un estraneo."}, 
+        {id:"oscura", label:"L'Osservatore", desc: "Il male è solo un esperimento cosmico. Noi siamo sia le cavie che gli scienziati."} 
+    ]
+  },
+  { 
+    id: 7, title: "Archivio 07 — L'Ombra del Destino", 
+    story: "Ettore lasciò scritto che il destino del gruppo era ineluttabile. L'omicidio non fu un evento fortuito, ma il compimento di un declino segnato.",
+    question: "Chi manifesta la rassegnazione più profonda, agendo come se l'esito fosse già stato irrevocabilmente sancito?",
+    labels:{suspect:"Il Fatalista", accuser:"Il Sognatore", defender:"Il Realista"},
+    gmGuide: "Il senso di colpa trasformato in 'fato'. Chi usa la scusa del 'doveva succedere' per non assumersi la colpa? L'admin deve incoraggiare chi crede che la Casa sia un'entità che controlla le loro vite.",
+    thesis:{ 
+        suspect: ["Mi votate per il mio realismo. Ho compreso che non esiste via d'uscita.", "Resistere è solo un esercizio di inutile e vana arroganza.", "Tutto è già scritto nelle ombre pesanti di questa casa."], 
+        accuser: ["Invochi il fatalismo per non ammettere la tua mancanza di volontà.", "La tua rassegnazione è un invito per il carnefice a colpire.", "Sei il primo a mollare la presa trascinandoci tutti nel baratro."], 
+        defender: ["La sua pianificazione ci impedisce di soccombere alle illusioni pericolose.", "Accettare il fato è un atto di suprema saggezza collettiva.", "C'è una dignità malinconica nel suo silenzio profetico."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"La Trappola", desc: "Il destino è solo un piano accurato orchestrato da chi detiene il potere."}, 
+        {id:"sociale", label:"Dinamica Tossica", desc: "Il gruppo si rassegna a un ciclo di violenza perché è l'unica lingua che conosce."}, 
+        {id:"oscura", label:"Il Disegno", desc: "Siamo marionette mosse da una forza antica che abita la Casa Valenti."} 
+    ] 
+  },
+  { 
+    id: 8, title: "Archivio 08 — L'Ombra della Loggia",
+    story: "Si diffuse l'ipotesi che il patriarca fosse stato eliminato da un simulacro, un 'doppio' che ne aveva usurpato l'identità.",
+    question: "Chi nasconde una nature ambivalente, un volto inquietante che si palesa solo quando crede di essere al sicuro?",
+    labels:{suspect:"Il Doppio", accuser:"Lo Specchio", defender:"Il Guardiano"},
+    gmGuide: "Dualità e segreti. Qui il Game Master deve puntare su chi sembra 'recitare' una parte troppo perfetta. Il killer è un impostore tra di noi. Chi non ha mai mostrato il suo vero volto?",
+    thesis:{ 
+        suspect: ["Vi spaventa ciò che vedete riflesso nel mio silenzio impenetrabile.", "Siamo tutti dei doppi, io ho solo il coraggio di accettare l'ombra.", "L'identità è una finzione che ho cambiato troppe volte."], 
+        accuser: ["Sei un impostore: dietro la maschera si cela un estraneo totale.", "Ti ho visto quando pensavi di essere solo. Il tuo sguardo non era umano.", "Hai rubato la vita di qualcun altro per sedere a questo tavolo."], 
+        defender: ["La riservatezza non è una colpa. Il mistero merita rispetto.", "La sua ambivalenza tiene insieme le nostre diverse ipocrisie.", "Forse l'impostore è l'unico che dice la verità sulla nostra natura."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"Doppio Gioco", desc: "Il killer ha agito fingendosi un alleato, sfruttando la fiducia come maschera."}, 
+        {id:"sociale", label:"Psicosi Indotta", desc: "Il gruppo decide di ignorare la verità per accettare la recita collettiva."}, 
+        {id:"oscura", label:"L'Invasione", desc: "L'ombra della vittima ha preso il controllo di uno dei presenti."} 
+    ]
+  },
+  { 
+    id: 9, title: "Archivio 09 — Il Faro nell'Angoscia",
+    story: "Dopo il delitto, il tentativo di fuga fallì miseramente: ogni sentiero nel bosco riconduceva alla porta di Casa Valenti.",
+    question: "Chi ha avuto la viltà di suggerire che la salvezza non potesse riguardare l'intero gruppo?",
+    labels:{suspect:"Il Codardo", accuser:"Il Solidale", defender:"Il Pragmatico"},
+    gmGuide: "Sopravvivenza del più forte. Questo round serve a capire chi, nel momento del panico, ha pensato solo a se stesso. Ettore è morto perché qualcuno ha deciso che valeva più di lui.",
+    thesis:{ 
+        suspect: ["Era necessario sacrificare un elemento inadeguato alla crisi.", "La selezione naturale è l'unica legge quando la nave affonda.", "Ho avuto il coraggio di dire ad alta voce ciò che pensavate tutti."], 
+        accuser: ["Sei stato il primo a rompere la nostra preziosa solidarietà.", "La tua salvezza è costruita sopra i cadaveri dei tuoi amici.", "Sei un codardo che maschera la viltà con il pragmatismo."], 
+        defender: ["Senza la sua lucidità crudele saremmo prigionieri di ideali inutili.", "In ogni gruppo serve chi sa fare le scelte difficili per sopravvivere.", "Il suo spirito di conservazione ha permesso alla Casa di non implodere."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"Calcolo Sopravvivenza", desc: "La vita ha un valore matematico. Si salva chi può servire al nuovo ordine."}, 
+        {id:"sociale", label:"Panico Collettivo", desc: "Il gruppo si è scannato per la pura paura di restare indietro."}, 
+        {id:"oscura", label:"Patto dell'Eclissi", desc: "L'unico modo per fuggire è spegnere la luce della ragione e uccidere ancora."} 
+    ]
+  },
+  { 
+    id: 10, title: "Archivio 10 — Il Sottosopra",
+    story: "Sette anni fa, qualcuno si rifugiò nell'irrazionale per negare l'atrocità delle proprie azioni e assolverle.",
+    question: "Chi è più incline a invocare spiegazioni assurde pur di non assumersi la responsabilità delle proprie colpe?",
+    labels:{suspect:"Il Visionario", accuser:"Il Razionalista", defender:"Il Folle"},
+    gmGuide: "L'ultimo stadio della colpa: la follia o la negazione della realtà. Chi tra loro preferisce credere ai fantasmi piuttosto che guardarsi allo specchio? È il round che prepara alla discesa finale.",
+    thesis:{ 
+        suspect: ["Credere nell'oscurità esterna ci protegge dalla nostra malvagità.", "Ci sono forze che vanno oltre la banale logica umana.", "Non siamo noi i colpevoli, siamo solo i mezzi di un rito antico."], 
+        accuser: ["Utilizzi il misticismo come un alibi morale falso e vile.", "Le tue visioni sono solo deliri per non vedere il sangue sulle mani.", "Ci trascini nel tuo delirio pur di non essere condannato dai fatti."], 
+        defender: ["Abbracciare l'ignoto ci consente di coesistere in pace.", "La follia è un rifugio sociale legittimo quando la verità taglia.", "In questa casa l'assurdo è l'unica realtà possibile e sicura."] 
+    },
+    verdictOptions:[ 
+        {id:"cinica", label:"Allucinazione Massa", desc: "L'intero gruppo decide di credere a una menzogna assurda per non impazzire."}, 
+        {id:"sociale", label:"Capro Espiatorio", desc: "Si sceglie un mostro esterno da incolpare per sentirsi puri."}, 
+        {id:"oscura", label:"La Lacerazione", desc: "La Casa ha smesso di essere un luogo fisico per diventare una prigione mentale."} 
+    ]
+  }
+];
+
+/** --- 2. CONFIGURAZIONI GIOCO --- **/
+window.GAME_ROLES = {
+  killer: { id: "killer", name: "Killer", powerDesc: "Marchia un commensale: toglie 10 punti partita." },
+  investigatore: { id: "investigatore", name: "Investigatore", powerDesc: "Analizza i flussi: vedi chi ha votato chi in questo round.", totalUses: 3 },
+  medium: { id: "medium", name: "Il Medium", powerDesc: "Interroga l'aldilà: scopri l'identità di un ruolo specifico.", totalUses: 3 },
+  testimone: { id: "testimone", name: "Il Testimone", powerDesc: "Protezione sacra: rendi un commensale immune al Marchio del Killer.", totalUses: 3 },
+  invitato: { id: "invitato", name: "Invitato", powerDesc: "Analizza i rami della follia per sopravvivere." }
+};
+
+window.APPARITIONS_CONFIG = {
+  massimo: { id: "massimo", name: "Massimo Della Pena (L'Avvocato)", tone: "Arrogante, tagliente, freddo.", posture: "Rigido, spalle dritte, sguardo gelido.", mission: "Difendi il delitto come una necessità pragmatica. Spingi il gruppo verso la Via Cinica.", phrases: ["Tecnicamente, non esiste colpa.", "La verità è solo un accordo tra le parti.", "Siamo qui per affari, non per sentimenti."] },
+  gianluisa: { id: "gianluisa", name: "Gianluisa (La Moglie Devota)", tone: "Ansiosa, piagnucolosa, carica di misticismo.", posture: "Corva, mani giunte tremanti, guarda spesso in alto.", mission: "Trasforma il tavolo in un confessionale di fede collettiva. Spingi per la Via Sociale.", phrases: ["Ettore ci osserva ancora da lassù.", "Dio perdona, la Casa no.", "Solo l'unione dei nostri cuori ci salverà."] },
+  alfonso: { id: "alfonso", name: "Alfonso Lostranzo (Il Custode)", tone: "Inquietante, profondo, cavernoso.", posture: "Immobile, quasi senza sbattere ciglio, volto di pietra.", mission: "Convincili che il fato rovinioso guida questa casa. Spingi per la Via Oscura.", phrases: ["La Casa ha fame di segreti.", "Tutto è già stato scritto nel buio.", "Voi siete solo polvere nel vento del male."] },
+  doppio: { id: "doppio", name: "Il Doppio (L'Ombra)", tone: "Sussurrato, spezzato, risate nervose.", posture: "Movimenti scattanti, non fissare mai nessuno negli occhi.", mission: "Sii lo specchio nero della loro ipocrisia. Evoca il vuoto e la Via Oscura.", phrases: ["Io sono quello che avete fatto.", "Il silenzio urla più forte di voi.", "Nessuno esce da qui veramente vivo."] }
+};
+
+window.ANOMALIES_BANK = [
+    "Fissa intensamente un punto vuoto alle spalle di chi parla per 10 secondi.",
+    "Sussurra 'Ettore ti saluta' all'orecchio del tuo vicino di sinistra.",
+    "Batti tre colpi leggeri sotto il tavolo ogni volta che qualcuno ride.",
+    "Versa dell'acqua al tuo vicino dicendo sottovoce 'Non è veleno, giuro'.",
+    "Prendi il tovagliolo e inizia a ripiegarlo in modo ossessivo e maniacale.",
+    "Smettila di parlare completamente per 3 minuti, comunicando solo a cenni.",
+    "Fischietta una ninna nanna infantile molto lentamente.",
+    "Appoggia le mani sul tavolo e guarda in alto come ascoltando una voce.",
+    "Tocca la sedia di Ettore (vuota) e chiedi scusa sottovoce."
+];
+
+window.sb = window.supabase.createClient("https://wskjkstsxyshshskjkro.supabase.co", "sb_publishable_VB_PlUWq9aCpQZAA7nSHtw_q2Us5-_k");
+window.GAME_ID = new URLSearchParams(window.location.search).get('game') || 'brindisi_valenti_13';
+window.activeView = new URLSearchParams(window.location.search).get('view') || 'player';
+window.PLAYER_ID = localStorage.getItem('f13_pid') || 'p_' + Math.random().toString(36).slice(2, 9);
+localStorage.setItem('f13_pid', window.PLAYER_ID);
+
+window.state = { 
+  phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, 
+  deadIds: [], apparition: null, anomaly: null, currentDuel: null, 
+  powerUses: {}, activePowerUI: {}, timerEndsAt: null, adminEditId: null,
+  protectedId: null 
+};
+
+/** --- 3. UTILITY RENDERING --- **/
+window.getStepActive = function(i) { 
+    const m = { lobby:0, intro:1, round_intro:2, voting_suspect:2, select_thesis:3, discussion:4, voting_verdict:5, killer_mark:6, scoreboard:7, final_challenge: 8 }; 
+    return m[window.state.phase] === i; 
+};
+
+window.drawRankingHTML = function(isTV = false) {
+    const ps = Object.values(window.state.players).sort((a,b) => (b.points || 0) - (a.points || 0));
+    let h = `<div class="ranking-header ranking-grid ${isTV ? 'mb-4 text-white/30 text-sm' : 'text-[9px] mb-4 text-white/30'}"><div class='text-left text-white'>COMMENSALE</div><div class="text-center text-white">SOS</div><div class="text-center text-white">MAR</div><div class="text-center text-white">PT</div></div>`;
+    h += ps.map((p, i) => {
+        const isDead = window.state.deadIds?.includes(p.id);
+        const avatar = p.photo ? `<img src="${p.photo}" class="w-full h-full object-cover">` : `<div class="bg-white/10 w-full h-full flex items-center justify-center text-xl text-white">👤</div>`;
+        return `<div class="ranking-grid rank-row rounded-xl ${isTV ? 'py-3 px-6' : 'p-2'} items-center bg-white/5 border-white/5 mb-1 ${isDead ? 'opacity-30 grayscale' : ''}">
+            <div class="flex items-center gap-4 text-left text-white">
+                <div class="${isTV ? 'w-12 h-12' : 'w-8 h-8'} rounded-full overflow-hidden border-2 border-white/10 shrink-0 relative">
+                    ${avatar}${isDead ? '<div class="absolute inset-0 flex items-center justify-center bg-red-900/60 text-white font-black">X</div>' : ''}
+                </div>
+                <div class="truncate font-black uppercase ${isTV ? 'text-xl' : 'text-[9px]'}">${i+1}. ${p.name}</div>
+            </div>
+            <div class="rank-val ${isTV ? 'text-xl opacity-50' : 'text-xs opacity-40'} text-center">${p.suspicion || 0}</div>
+            <div class="rank-val ${isTV ? 'text-2xl text-red-500' : 'text-xs opacity-20'} text-center">${p.marks || 0}</div>
+            <div class="rank-val rank-pts ${isTV ? 'text-3xl' : 'text-xs'} text-center">${p.points || 0}</div>
+        </div>`;
+    }).join('');
+    return h;
+};
+
+/** --- 4. ENGINE CORE --- **/
+window.render = function() { 
+  const c = document.getElementById('app'); if(!c) return; 
+  if(window.activeView === 'tv') window.drawTV(c); 
+  else if(window.activeView === 'admin') window.drawAdmin(c); 
+  else window.drawPlayer(c); 
+  
+  // Nascondi la navigazione per i giocatori
+  const nav = document.getElementById('master-nav');
+  if (nav) {
+      if (window.activeView === 'player') nav.classList.add('hidden-nav');
+      else nav.classList.remove('hidden-nav');
+  }
+
+  if (window.peekingId) { const ps = document.getElementById('peek-screen'); if (ps) window.drawPlayer(ps, window.peekingId); }
+};
+
+window.patch = async function(newData) { window.state = { ...window.state, ...newData }; window.render(); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: window.state, updated_at: new Date().toISOString() }); };
+window.sync = async function() { const { data } = await window.sb.from('game_states').select('data').eq('id', window.GAME_ID).maybeSingle(); if (data && JSON.stringify(data.data) !== JSON.stringify(window.state)) { window.state = data.data; window.render(); } };
+window.setView = function(v) { window.activeView = v; window.render(); };
+
+/** --- 5. VISTA TV --- **/
+window.drawTV = function(c) {
+  const ph = window.state.phase; const rIdx = Math.max(0, (window.state.round || 1) - 1); const r = window.ROUNDS[rIdx];
+  const app = window.state.apparition;
+  if (app?.status === 'interrogating') { c.innerHTML = `<div class="ghost-overlay text-white text-center"><div class="ghost-animation text-accent">🕯️</div><h1 class="text-[6rem] font-black uppercase mt-10 tracking-widest leading-none">RITO IN CORSO</h1><p class="text-3xl italic opacity-60 mt-10">"Un'anima del passato parla attraverso un commensale..."</p></div>`; return; }
+
+  let h = `<div class="h-screen bg-black text-white flex flex-col justify-center items-center p-12 text-center relative">`;
+  if(ph==='lobby') {
+    // Genera URL specifico per i telefoni
+    const baseUrl = window.location.origin + window.location.pathname;
+    const playerUrl = `${baseUrl}?view=player&game=${window.GAME_ID}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(playerUrl)}`;
+    
+    h += `
+    <div class="flex flex-col items-center gap-10">
+      <h1 class="text-[8rem] font-black uppercase text-accent leading-none tracking-tighter">L'Ultimo Brindisi</h1>
+      <div class="flex items-center gap-16 bg-white/5 p-12 rounded-[40px] border border-white/10 shadow-2xl animate-in zoom-in">
+        <div class="text-left max-w-sm">
+          <p class="kicker text-xl mb-4">Unisciti al Banchetto</p>
+          <p class="text-4xl font-black mb-6 playfair italic">Inquadra per partecipare</p>
+          <p class="text-sm opacity-40 uppercase tracking-widest">Attesa commensali (7 posti)...</p>
+        </div>
+        <div class="qr-container">
+          <img src="${qrUrl}" alt="QR Code" class="w-56 h-56">
+        </div>
+      </div>
+      <p class="text-2xl opacity-20 uppercase tracking-widest animate-pulse mt-8">In attesa dell'inizio della tragedia...</p>
+    </div>`;
+  }
+  else if(ph==='intro') h += `<div class="max-w-6xl mx-auto"><p class="kicker text-2xl mb-12 opacity-60 font-black">IL RISVEGLIO</p><div class="story-card-tv glass text-white text-center">"${window.PREMISE}"</div></div>`;
+  else if(ph==='round_intro'||ph==='voting_suspect') h += `<h2 class="text-6xl font-black playfair uppercase text-accent mb-8">${r.title}</h2><div class="story-card-tv glass mb-12">"${r.story}"</div><div class="p-10 glass border-l-8 border-accent"><p class="text-3xl font-bold italic">"${r.question}"</p></div>`;
+  else if(ph==='select_thesis' || ph==='discussion') {
+      const trio = [{id:window.state.currentRound?.suspect, l:r.labels.suspect, c:"red"}, {id:window.state.currentRound?.accuser, l:r.labels.accuser, c:"blue"}, {id:window.state.currentRound?.defender, l:r.labels.defender, c:"emerald"}];
+      h += `<div class="w-full max-w-7xl"><p class="kicker text-2xl mb-12 opacity-60 font-black text-center">${ph==='discussion' ? 'DIBATTITO IN CORSO' : 'PROTAGONISTI DEL CICLO'}</p>${ph==='discussion' ? `<div class="timer-tv mb-12 text-center" id="tv-timer-display">05:00</div>` : ''}<div class="flex justify-center gap-8">` + trio.map(p => {
+          const player = window.state.players[p.id]; const th = window.state['thesis_'+p.id];
+          return `<div class="glass p-8 w-80 border-t-4 border-${p.c}-600 flex flex-col items-center text-center"><div class="w-40 h-40 rounded-full overflow-hidden mb-6 border-4 border-white/10 bg-white/5 flex items-center justify-center text-6xl">${player?.photo ? `<img src="${player.photo}" class="w-full h-full object-cover">` : '👤'}</div><p class="kicker text-${p.c}-400 mb-2 uppercase font-black text-sm">${p.l}</p><p class="text-4xl font-black uppercase text-white mb-4">${player?.name || '---'}</p>${ph==='discussion' ? `<div class="mt-4 border-t border-white/10 pt-4"><p class="text-sm italic opacity-80">"${th || 'Sta scegliendo...'}"</p></div>` : ''}</div>`;
+      }).join('') + `</div></div>`;
+  }
+  else if(ph==='voting_verdict') {
+      const vVotes = window.state.verdictVotes || {}; const groupings = { cinica: [], sociale: [], oscura: [] };
+      Object.entries(vVotes).forEach(([pid, vid]) => { if (groupings[vid]) groupings[vid].push(window.state.players[pid]?.name); });
+      h += `<div class="max-w-7xl mx-auto w-full"><p class="kicker text-emerald-500 text-2xl mb-4 uppercase font-black text-center">SENTENZA FINALE</p><div class="bg-emerald-950/20 border border-emerald-900/40 p-6 rounded-3xl mb-12 text-center"><h2 class="text-4xl font-black playfair">"${r.verdictQuestion || "Quale via sceglierete?"}"</h2></div><div class="grid grid-cols-3 gap-8">` + 
+                r.verdictOptions.map(opt => {
+                    const voters = groupings[opt.id] || [];
+                    return `<div class="glass p-8 border-t-4 border-emerald-600 flex flex-col min-h-[400px]"><p class="text-2xl font-black uppercase text-center mb-2">${opt.label}</p><div class="text-6xl font-black text-emerald-500 text-center mb-4">${voters.length}</div><p class="text-[10px] italic opacity-60 text-center mb-6">${opt.desc}</p><div class="mt-auto border-t border-white/10 pt-6"><p class="text-[9px] font-black uppercase text-emerald-400/60 mb-4 tracking-widest text-center">Votata da:</p><div class="flex flex-col gap-2">${voters.length > 0 ? voters.map(v => `<div class="bg-white/5 py-2 px-3 rounded-lg text-sm font-bold uppercase tracking-tight animate-in fade-in">${v}</div>`).join('') : '<p class="text-xs italic opacity-30 text-center">Nessun voto</p>'}</div></div></div>`;
+                }).join('') + `</div></div>`;
+  }
+  else if(ph==='scoreboard') h += `<h2 class="text-4xl font-black mb-12 uppercase tracking-widest text-center">Sentenza della Casa</h2><div class="max-w-5xl w-full">` + window.drawRankingHTML(true) + `</div>`;
+  else if(ph==='final_challenge') {
+      const d = window.state.currentDuel;
+      if (!d) h += `<h1 class="text-6xl font-black text-accent uppercase">LA DISCESA FINALE</h1>`;
+      else {
+          const p1 = window.state.players[d.p1Id]; const p2 = window.state.players[d.p2Id];
+          h += `<div class="max-w-6xl w-full"><div class="flex justify-between items-center mb-16"><div class="text-center w-1/3"><div class="w-40 h-40 rounded-full border-4 border-accent mx-auto overflow-hidden bg-white/5 mb-4 text-white">${p1.photo ? `<img src="${p1.photo}" class="w-full h-full object-cover">` : '👤'}</div><p class="text-2xl font-black uppercase text-accent">${p1.name}</p><p class="text-xl font-bold mt-2">Quiz: ${d.scores[p1.id] || 0}</p></div><div class="text-5xl font-black italic">VS</div><div class="text-center w-1/3"><div class="w-40 h-40 rounded-full border-4 border-accent mx-auto overflow-hidden bg-white/5 mb-4 text-white">${p2.photo ? `<img src="${p2.photo}" class="w-full h-full object-cover">` : '👤'}</div><p class="text-2xl font-black uppercase text-accent">${p2.name}</p><p class="text-xl font-bold mt-2">Quiz: ${d.scores[p2.id] || 0}</p></div></div><div class="duel-card p-12 rounded-3xl animate-in zoom-in text-white"><p class="kicker text-2xl mb-4 text-accent text-center">DOMANDA ${d.currentIdx + 1}/7</p><h2 class="text-5xl font-black playfair italic leading-tight text-center">"${d.questions[d.currentIdx].text}"</h2>${d.winnerId ? `<div class="mt-12 text-4xl font-black text-red-500 uppercase animate-pulse text-center">MORTE PER ${window.state.players[d.loserId].name}</div>` : ''}</div></div>`;
+      }
+  }
+  else h += `<h1 class="text-[5rem] font-black text-accent uppercase">IN ATTESA</h1>`;
+  h += `</div>`; c.innerHTML = h;
+  if(ph==='discussion') window.updateTimer('tv-timer-display');
+};
+
+/** --- 6. VISTA ADMIN --- **/
+window.drawAdmin = function(c) {
+  const ph = window.state.phase; const app = window.state.apparition; const anom = window.state.anomaly;
+  const rIdx = Math.max(0, (window.state.round || 1) - 1);
+  const currentR = window.ROUNDS[rIdx];
+
+  let mainAction = ph==='lobby' ? `<button onclick="window.assignRoles()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">1. ASSEGNA RUOLI</button>` :
+                   (ph==='intro' || ph==='scoreboard') ? `<button onclick="${window.state.round >= 10 ? 'window.startFinalChallenge()' : 'window.startR()'}" class="btn-gold w-full py-8 text-2xl font-black uppercase text-white">${window.state.round >= 10 ? 'AVVIA SFIDE FINALI' : 'PROSSIMO ARCHIVIO'}</button>` :
+                   ph==='round_intro' ? `<button onclick="window.patch({phase:'voting_suspect', votes:{}})" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">APRI VOTO FLASH</button>` :
+                   ph==='voting_suspect' ? `<button onclick="window.closeV1()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase">CHIUDI VOTO</button>` :
+                   ph==='select_thesis' ? `<button onclick="window.patch({phase:'discussion', timerEndsAt: Date.now()+300000})" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase text-white">AVVIA DIBATTITO (5 MIN)</button>` :
+                   ph==='discussion' ? `<button onclick="window.patch({phase:'voting_verdict', verdictVotes:{}})" class="btn-gold w-full py-8 text-2xl font-black uppercase text-white text-white">VOTO SENTENZA FINALE</button>` :
+                   ph==='voting_verdict' ? `<button onclick="window.patch({phase:'killer_mark'})" class="btn-gold w-full py-8 text-2xl font-black uppercase text-white text-white">MARCHIO DEL KILLER</button>` :
+                   ph==='killer_mark' ? `<button onclick="window.patch({phase:'scoreboard'})" class="btn-gold w-full py-8 text-2xl font-black uppercase text-white text-white">MOSTRA CLASSIFICA ROUND</button>` :
+                   ph==='final_challenge' ? (window.state.currentDuel?.winnerId ? `<button onclick="window.nextDuel()" class="btn-gold w-full py-8 text-2xl font-black text-white uppercase text-white">PROSSIMO SFIDANTE</button>` : `<p class="text-accent uppercase font-black animate-pulse text-center">Duello in corso...</p>`) : "";
+
+  c.innerHTML = `<div id="admin-root" class="p-8 max-w-6xl mx-auto text-white h-screen overflow-y-auto pb-48 text-left">
+    <div class="flex justify-between items-center mb-8 glass p-6 border-white/10">
+      <h1 class="text-3xl font-black text-accent uppercase tracking-tighter">Console Regia</h1>
+      <button onclick="window.doReset()" class="text-[10px] text-red-500 border border-red-500/20 px-4 py-2 rounded-full font-black uppercase">Reset</button>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+      <div class="space-y-6">
+        <div id="admin-steps" class="grid grid-cols-9 gap-1 p-2 bg-white/5 rounded-2xl border border-white/10 text-center mb-4">
+            ${['L','I','V','T','D','S','M','S','F'].map((s,i)=>`<div class="admin-step ${window.getStepActive(i)?'active':''} py-1 rounded text-[9px] font-black">${s}</div>`).join('')}
+        </div>
+        
+        <div class="glass p-6 text-center">${mainAction}</div>
+
+        <!-- GUIDA NARRATIVA GAME MASTER -->
+        <div class="glass p-6 border-t-4 border-accent">
+           <p class="kicker mb-3">Diario del Game Master — Round ${window.state.round || 0}</p>
+           <div class="gm-note">
+             ${currentR?.gmGuide || "L'archivio non è ancora stato aperto. Prepara l'atmosfera e invita i commensali al silenzio."}
+           </div>
+        </div>
+
+        <div class="glass p-6 border-t-4 border-purple-500 text-center">
+          <p class="kicker mb-4 text-purple-400">Disturbi della Casa</p>
+          <div class='grid grid-cols-2 gap-2 mb-4'>
+            <button onclick="window.sendAnom()" class="py-4 bg-purple-900/40 text-purple-200 rounded-xl font-bold uppercase text-[10px] border border-purple-500/30">👁️ ANOMALIA</button>
+            <button onclick="window.sendApp()" class="py-4 bg-blue-900/40 text-blue-300 rounded-xl font-bold uppercase text-[10px] border border-blue-500/30">👻 BUSTA</button>
+          </div>
+          ${anom ? `<div class="bg-red-900/30 p-4 rounded-xl border border-red-500/40 text-left mb-4"><p class="text-[9px] font-black uppercase text-red-400">PER: ${window.state.players[anom.executor]?.name}</p><p class="text-[10px]">"${anom.text}"</p><div class="flex gap-2 mt-4"><button onclick="window.manualPoints('${anom.executor}', -10); window.patch({anomaly: null})" class="flex-1 py-2 bg-red-800 rounded text-[9px] font-black">FALLITA</button><button onclick="window.manualPoints('${anom.executor}', 10); window.patch({anomaly: null})" class="flex-1 py-2 bg-emerald-600 rounded text-[9px] font-black">OK</button></div></div>` : ''}
+          ${app ? `<div class="bg-blue-900/60 p-4 rounded-xl border border-blue-400/30 text-left"><p class="text-[9px] font-black uppercase text-blue-300">RITO PER: ${window.state.players[app.executor]?.name}</p><p class="text-[10px] opacity-60">Stato: ${app.status}</p><div class="flex gap-2 mt-4 text-white"><button onclick="window.manualPoints('${app.executor}', -10); window.closeGhost()" class="flex-1 py-2 bg-red-900 rounded text-[9px] font-black">MALUS</button><button onclick="window.manualPoints('${app.executor}', 10); window.closeGhost()" class="flex-1 py-2 bg-emerald-700 rounded text-[9px] font-black">BONUS</button></div></div>` : ''}
+        </div>
+      </div>
+      
+      <div class="space-y-6">
+        <p class='kicker opacity-40 uppercase'>Commensali</p>
+        <div id="admin-players-list" class="grid grid-cols-1 gap-2"></div>
+        <div class="grid grid-cols-2 gap-2 mt-8">
+             <button onclick="window.addBots()" class="py-3 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase">🤖 +7 BOT</button>
+             <button onclick="window.simulateBotActions()" class="py-3 bg-blue-900/30 border border-blue-500/30 rounded-xl text-[10px] font-black uppercase">🤖 SIMULA TUTTO</button>
+             <button onclick="window.simulateNotes()" class="py-3 bg-emerald-900/30 border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase">🤖 SIMULA NOTE</button>
+        </div>
+      </div>
+    </div>
+    <div id="admin-rank-list" class="glass p-8"></div>
+  </div>`;
+  window.updateAdminPlayers();
+  document.getElementById('admin-rank-list').innerHTML = window.drawRankingHTML(false);
+};
+
+window.updateAdminPlayers = function() {
+    const listEl = document.getElementById('admin-players-list'); if(!listEl) return;
+    const anom = window.state.anomaly; const app = window.state.apparition;
+    listEl.innerHTML = Object.values(window.state.players).map(p => {
+        let b = ""; if(p.isBot) b += `<span class="status-badge badge-bot">BOT</span>`;
+        if(window.state.votes?.[p.id]) b += `<span class="status-badge badge-info">VOTATO</span>`;
+        if(window.state.verdictVotes?.[p.id]) b += `<span class="status-badge badge-success">SENTENZA OK</span>`;
+        if(window.state['thesis_'+p.id]) b += `<span class="status-badge badge-info">TESI OK</span>`;
+        if(anom?.executor === p.id) b += `<span class="status-badge badge-alert">ANOMALIA</span>`;
+        if(app?.executor === p.id) b += `<span class="status-badge badge-ghost">BUSTA</span>`;
+        
+        const currentPhoto = p.photo ? `<img src="${p.photo}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center h-full text-xl text-white">👤</span>`;
+
+        return `<div class="glass p-4">
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-3">
+                   <div class="w-8 h-8 rounded-full overflow-hidden border border-white/20 bg-white/5">${currentPhoto}</div>
+                   <b class="uppercase text-[11px] font-black text-left">${p.name} ${b}</b>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="window.toggleAdminEdit('${p.id}')" class="text-lg">📝</button>
+                    <button onclick="window.openPeek('${p.id}')" class="text-lg">📱</button>
+                </div>
+            </div>
+            ${window.state.adminEditId === p.id ? `<div class="bg-black/40 p-4 rounded-xl space-y-4 animate-in slide-in-from-top">
+              <div>
+                <p class="text-[9px] font-black uppercase text-accent/60 mb-2">Note segrete (per i quiz)</p>
+                <textarea onblur="window.updatePlayerField('${p.id}', 'notes', this.value)" class="w-full bg-black border border-white/10 p-2 text-[10px] rounded h-20 text-white outline-none resize-none">${p.notes || ''}</textarea>
+              </div>
+              
+              <div>
+                <p class="text-[9px] font-black uppercase text-accent/60 mb-2">Foto Profilo</p>
+                <label class="block w-full py-2 bg-white/5 border border-dashed border-white/20 rounded-lg text-center cursor-pointer hover:bg-white/10 transition">
+                  <span class="text-[9px] font-black uppercase">Cambia Foto</span>
+                  <input type="file" accept="image/*" class="hidden" onchange="window.handleFileSelect('${p.id}', event)">
+                </label>
+              </div>
+
+              <div class="flex justify-between items-center mt-2">
+                <div class="flex gap-1">
+                    <button onclick="window.manualPoints('${p.id}', -5)" class="bg-red-900 w-8 h-6 rounded font-black text-[10px] text-white">-5</button>
+                    <button onclick="window.manualPoints('${p.id}', 5)" class="bg-emerald-900 w-8 h-6 rounded font-black text-[10px] text-white">+5</button>
+                </div>
+                <span class="text-[9px] text-accent font-black uppercase">${p.role?.name || 'Invitato'}</span>
+              </div>
+            </div>` : ''}
+        </div>`;
+    }).join('');
+};
+
+/** --- 7. VISTA PLAYER --- **/
+window.drawPlayer = function(c, pid = window.PLAYER_ID) {
+  const me = window.state.players[pid];
+  if(!me) { 
+      c.innerHTML = `<div class="p-8 text-center pt-24 glass max-w-md mx-auto"><h1 class="text-3xl font-black mb-8 uppercase">Il Banchetto</h1><div class="space-y-6"><input id="j-name" type="text" placeholder="Nome" class="w-full p-4 bg-black/50 border border-white/10 rounded-xl text-white text-center uppercase font-bold outline-none mb-2"><div class="space-y-2"><p class="text-[9px] font-black uppercase text-accent/60 mb-2">Scegli la tua Foto</p><label class="file-input-label">Carica Immagine<input type="file" accept="image/*" onchange="window.handleFileSelectPreview(event)"></label><div id="join-photo-preview" class="w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-accent hidden mt-4"></div></div><button onclick="window.doJoin()" class="w-full py-4 btn-gold text-black font-black uppercase text-center mt-6">Entra</button></div></div>`; return; 
+  }
+  if (window.state.deadIds?.includes(pid)) { c.innerHTML = `<div class="h-screen flex items-center justify-center text-red-600 font-black text-4xl uppercase bg-black">SEI MORTO</div>`; return; }
+
+  const app = window.state.apparition; const anom = window.state.anomaly; const ph = window.state.phase;
+  let h = `<div class="p-6 max-w-md mx-auto flex flex-col gap-6 text-center">`;
+  h += `<div class="flex items-center gap-4 justify-center"><div class="w-16 h-16 rounded-full overflow-hidden border-2 border-accent bg-white/5 shrink-0 shadow-2xl">${me.photo ? `<img src="${me.photo}" class="w-full h-full object-cover">` : `<span class="flex items-center justify-center h-full text-2xl text-white">👤</span>`}</div><div class="text-left"><h2 class="text-xl font-black uppercase leading-tight">${me.name}</h2><span class="text-accent font-black text-[9px] uppercase tracking-widest">${me.role?.name || 'Invitato'}</span></div></div>`;
+
+  if (anom?.executor === pid) h += `<div class="bg-red-950 border-2 border-red-600 p-6 rounded-3xl animate-in zoom-in text-white text-center shadow-2xl"><p class="kicker text-red-400 mb-2 uppercase font-black">Azione Anomala</p><p class="text-lg font-bold">"${anom.text}"</p><p class="text-[10px] opacity-50 mt-4 uppercase italic">Eseguila ora con discrezione.</p></div>`;
+  if (app?.executor === pid && app.active) {
+      if (app.status === 'pending') h += `<div class="bg-blue-900 border-2 border-blue-500 p-8 rounded-3xl text-center shadow-2xl"><p class="kicker text-blue-300 mb-6 uppercase">Busta Apparizione</p><p class="text-xs italic mb-6">"Questo rito può darti +10 punti o togliertene 10. Accetti?"</p><button onclick="window.patch({apparition: {...window.state.apparition, status: 'selecting_interrogator'}})" class="btn-gold w-full mb-3 uppercase">Sì, accetto</button><button onclick="window.closeGhost()" class="text-[10px] opacity-40 uppercase">No, passa</button></div>`;
+      else if (app.status === 'selecting_interrogator') h += `<div class="bg-blue-900/60 p-6 rounded-3xl border border-blue-500"><p class="kicker mb-4 uppercase">Chi ti interroga?</p><div class="grid grid-cols-2 gap-2 text-white">` + Object.values(window.state.players).filter(p => p.id !== pid).map(p => `<button onclick="window.setInterrogator('${p.id}')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase font-black">${p.name}</button>`).join('') + `</div></div>`;
+      else if (app.status === 'interrogating') {
+          const cfg = window.APPARITIONS_CONFIG[app.id];
+          h += `<div class="bg-black border-2 border-accent p-6 rounded-3xl text-left shadow-2xl text-white"><h3 class="text-xl font-black uppercase text-accent mb-4 text-center border-b border-accent/20 pb-2">${cfg.name}</h3><div class="space-y-4"><div><p class="text-sm"><b>Tono:</b> ${cfg.tone}</p><p class="text-sm mt-1"><b>Postura:</b> ${cfg.posture}</p></div><div><p class="text-[10px] uppercase text-accent/60">Missione:</p><p class="text-sm italic">${cfg.mission}</p></div><div><ul class="list-disc list-inside text-xs italic opacity-70">${cfg.phrases.map(f => `<li>"${f}"</li>`).join('')}</ul></div></div></div>`;
+      }
+  }
+  if (app?.interrogatorId === pid && app.status === 'interrogating') h += `<div class="bg-blue-950 border-2 border-blue-400 p-8 rounded-3xl"><p class="kicker mb-4 uppercase text-white">Sei l'Interrogante</p><p class="text-lg italic">Chiedi a <b>${window.state.players[app.executor]?.name}</b>:<br><br><span class='text-accent text-3xl font-black'>"CHI SEI?"</span></p></div>`;
+
+  const activeUI = window.state.activePowerUI?.[pid]; const uses = window.state.powerUses?.[pid] || 0;
+  if (me.role) {
+      const roleCfg = window.GAME_ROLES[me.role.id];
+      
+      if (activeUI === 'showing_medium_menu') {
+          h += `<div class="glass p-6 rounded-3xl border border-purple-500/30 text-white"><p class="text-[10px] font-black uppercase text-accent mb-4">Il Medium</p><p class="text-xs mb-4 opacity-70">Scopri chi ricopre un ruolo specifico:</p><div class="grid grid-cols-1 gap-2"><button onclick="window.mediumQuery('investigatore', '${pid}')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase">🔍 Investigatore</button><button onclick="window.mediumQuery('testimone', '${pid}')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase">🛡️ Testimone</button><button onclick="window.mediumQuery('invitato', '${pid}')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase">👤 Un Invitato</button></div><button onclick="window.closePowerUI('${pid}')" class="mt-4 text-[9px] uppercase opacity-40">Annulla</button></div>`;
+      }
+      else if (activeUI === 'showing_investigation') {
+          const votes = window.state.votes || {};
+          const vList = Object.entries(votes);
+          h += `<div class="glass p-6 rounded-3xl border border-blue-500/30 text-white"><p class="text-[10px] font-black uppercase text-accent mb-4">L'Investigatore</p><p class="text-xs mb-6 opacity-70 text-left">Flussi di voto correnti:</p><div class="space-y-2">` + 
+                (vList.length > 0 ? vList.map(([voterId, targetId]) => `<div class="flex justify-between items-center text-[9px] uppercase font-bold bg-white/5 p-2 rounded-lg"><span class="text-blue-300">${window.state.players[voterId]?.name}</span> <span class="opacity-20">➝</span> <span class="text-white">${window.state.players[targetId]?.name}</span></div>`).join('') : '<p class="text-[9px] italic opacity-30 text-center">Ancora nessun voto espresso.</p>') + 
+                `</div><button onclick="window.closePowerUI('${pid}')" class="w-full mt-6 btn-gold py-2 text-[10px]">Chiudi</button></div>`;
+      }
+      else if (activeUI === 'showing_testimone_menu') {
+          h += `<div class="glass p-6 rounded-3xl border border-emerald-500/30 text-white"><p class="text-[10px] font-black uppercase text-accent mb-4">Il Testimone</p><p class="text-xs mb-4 opacity-70">Chi vuoi rendere immune dal marchio del Killer per questo turno?</p><div class="grid grid-cols-2 gap-2">` + 
+                Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id)).map(p => `<button onclick="window.protectPlayer('${p.id}', '${pid}')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase">${p.name}</button>`).join('') + 
+                `</div><button onclick="window.closePowerUI('${pid}')" class="mt-4 text-[9px] uppercase opacity-40">Annulla</button></div>`;
+      }
+      else if (activeUI?.startsWith('result:')) {
+          h += `<div class="bg-accent/10 p-8 rounded-3xl border border-accent/40 text-center animate-in zoom-in text-white"><p class="kicker mb-4 text-accent">Responso dell'Oltre</p><p class="text-lg font-bold uppercase">${activeUI.split(':')[1]}</p><button onclick="window.closePowerUI('${pid}')" class="w-full mt-8 btn-gold py-3 text-[10px]">Ho Visto</button></div>`;
+      }
+      else if (roleCfg?.totalUses) {
+          const remain = roleCfg.totalUses - uses;
+          h += `<div class="glass p-4 rounded-3xl border border-white/5 space-y-2"><p class="text-[9px] font-black uppercase tracking-widest text-accent/50">${roleCfg.powerDesc}</p><button onclick="window.usePower('${pid}')" ${remain <= 0 ? 'disabled' : ''} class="w-full py-4 btn-gold uppercase text-[10px]">Usa Potere (${remain}/${roleCfg.totalUses})</button></div>`;
+      }
+  }
+
+  if (ph === 'voting_suspect' && !window.state.votes?.[pid]) { h += `<div class="glass p-4 rounded-3xl border border-white/10 text-white"><p class="kicker mb-4">Voto Flash</p><div class="grid grid-cols-2 gap-2">` + Object.values(window.state.players).filter(p=>p.id!==pid && !window.state.deadIds.includes(p.id)).map(p=>`<button onclick="window.castVote('${p.id}', '${pid}')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase font-black">${p.name}</button>`).join('') + `</div></div>`; }
+  else if (ph === 'select_thesis' && !window.state['thesis_' + pid]) {
+      const cr = window.state.currentRound; const rIdx = Math.max(0, window.state.round - 1); const r = window.ROUNDS[rIdx];
+      const rk = (cr?.suspect === pid) ? 'suspect' : (cr?.accuser === pid ? 'accuser' : (cr?.defender === pid ? 'defender' : null));
+      if (rk) h += `<div class="bg-accent/5 p-6 rounded-3xl border border-accent/20 shadow-2xl text-white"><p class="kicker mb-4 text-accent uppercase">Scegli la tua tesi</p><div class="space-y-2">` + r.thesis[rk].map((t, i) => `<button onclick="window.confirmThesis(${i}, '${rk}', '${pid}')" class="w-full p-4 bg-black/40 border border-white/10 rounded-2xl text-left text-xs italic">${t}</button>`).join('') + `</div></div>`;
+  } else if (ph === 'voting_verdict' && !window.state.verdictVotes?.[pid]) {
+      const rIdx = Math.max(0, window.state.round - 1);
+      h += `<div class="bg-emerald-950/20 p-6 rounded-3xl border border-emerald-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-emerald-400 uppercase">Sentenza Finale</p><div class="space-y-2">` + window.ROUNDS[rIdx].verdictOptions.map((opt, i) => `<button onclick="window.confirmVerdict(${i}, '${pid}')" class="w-full py-4 bg-black/40 border border-white/10 rounded-2xl text-[10px] uppercase font-black">${opt.label}</button>`).join('') + `</div></div>`;
+  } else if (ph === 'killer_mark' && me.role?.id === 'killer') {
+      h += `<div class="bg-red-950/20 p-6 rounded-3xl border border-red-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-red-500 uppercase">Marchio del Killer</p><p class="text-xs mb-4 opacity-70">Chi vuoi colpire in questo round? (-10 Punti)</p><div class="grid grid-cols-2 gap-2">` + 
+           Object.values(window.state.players).filter(p => p.id !== pid && !window.state.deadIds.includes(p.id)).map(p => `<button onclick="window.confirmMark('${p.id}')" class="p-3 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase text-white">${p.name}</button>`).join('') + 
+           `</div></div>`;
+  } else if (ph === 'final_challenge') {
+      const d = window.state.currentDuel;
+      if (d && (d.p1Id === pid || d.p2Id === pid)) {
+          if (d.answers[pid]?.[d.currentIdx] !== undefined) h += `<p class="italic opacity-50 mt-12">Risposta inviata. Attendi l'avversario...</p>`;
+          else {
+              const q = d.questions[d.currentIdx]; h += `<div class="mt-8 text-white"><p class="text-xl italic mb-10">"${q.text}"</p>`;
+              if (q.type === 'tf') h += `<div class="flex gap-4"><button onclick="window.submitDuelAnswer('${pid}', true)" class="flex-1 py-10 bg-emerald-900/40 border-2 border-emerald-500 rounded-3xl font-black text-xl">VERO</button><button onclick="window.submitDuelAnswer('${pid}', false)" class="flex-1 py-10 bg-red-900/40 border-2 border-red-500 rounded-3xl font-black text-xl">FALSO</button></div>`;
+              else h += `<div class="grid grid-cols-2 gap-2 text-white">` + Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id)).map(p => `<button onclick="window.submitDuelAnswer('${pid}', '${p.id}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black uppercase">${p.name}</button>`).join('') + `</div>`;
+              h += `</div>`;
+          }
+      }
+  }
+  c.innerHTML = h + `</div>`;
+};
+
+/** --- 8. ENGINE LOGIC --- **/
+window.addBots = function() { 
+    const ps = { ...window.state.players }; const names = ["Bot_Aron", "Bot_Bice", "Bot_Ciro", "Bot_Dina", "Bot_Enea", "Bot_Fede", "Bot_Gaia"];
+    names.forEach(name => { const id = 'bot_' + Math.random().toString(36).slice(2, 7); ps[id] = { id, name, points: 0, suspicion: 0, marks: 0, joined: true, isBot: true, notes: "" }; }); 
+    window.patch({ players: ps }); 
+};
+
+window.simulateBotActions = function() {
+    const ps = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id)); const bots = ps.filter(p => p.isBot); const ph = window.state.phase;
+    if (ph === 'voting_suspect') { const v = { ...window.state.votes }; bots.forEach(b => { const o = ps.filter(p => p.id !== b.id); v[b.id] = o[Math.floor(Math.random() * o.length)].id; }); window.patch({ votes: v }); }
+    else if (ph === 'select_thesis') {
+        const cr = window.state.currentRound; const rIdx = Math.max(0, window.state.round - 1); const r = window.ROUNDS[rIdx];
+        const patchData = {};
+        ['suspect', 'accuser', 'defender'].forEach(role => {
+            const pid = cr[role]; if (window.state.players[pid]?.isBot) patchData['thesis_'+pid] = r.thesis[role][Math.floor(Math.random()*3)];
+        });
+        window.patch(patchData);
+    }
+    else if (ph === 'voting_verdict') { const vv = { ...window.state.verdictVotes }; bots.forEach(b => { vv[b.id] = ['cinica','sociale','oscura'][Math.floor(Math.random()*3)]; }); window.patch({ verdictVotes: vv }); }
+    else if (ph === 'killer_mark') {
+        const k = Object.values(window.state.players).find(p => p.role?.id === 'killer');
+        if (k?.isBot) { const target = ps.filter(p => p.id !== k.id)[0]; window.confirmMark(target.id); }
+    }
+};
+
+window.assignRoles = function() { const ps={...window.state.players}; const ids=Object.keys(ps).sort(()=>Math.random()-0.5); ids.forEach((id, i) => { let rK = (i === 0) ? 'killer' : (i === 1 ? 'investigatore' : (i === 2 ? 'medium' : (i === 3 ? 'testimone' : 'invitato'))); ps[id].role={id:rK, name:window.GAME_ROLES[rK].name, totalUses: window.GAME_ROLES[rK].totalUses}; }); window.patch({players:ps, phase:'intro', round: 0}); };
+window.startR = function() { 
+  const nextR = window.state.round + 1;
+  const ns = { phase:'round_intro', round: nextR, votes:{}, verdictVotes:{}, apparition: null, anomaly: null, protectedId: null }; 
+  Object.keys(window.state).forEach(k => { if (k.startsWith('thesis_')) ns[k] = null; }); 
+  window.patch(ns); 
+};
+
+window.setInterrogator = function(intId) { window.patch({ apparition: { ...window.state.apparition, interrogatorId: intId, status: 'interrogating' } }); };
+window.closeGhost = function() { window.patch({ apparition: null }); };
+window.sendApp = function() { const ids = Object.keys(window.state.players); if (ids.length === 0) return; const chosen = Object.keys(window.APPARITIONS_CONFIG)[Math.floor(Math.random() * 4)]; window.patch({ apparition: { id: chosen, executor: ids[Math.floor(Math.random() * ids.length)], active: true, status: 'pending', interrogatorId: null } }); };
+window.sendAnom = function() { const ids = Object.keys(window.state.players); if (ids.length === 0) return; window.patch({ anomaly: { executor: ids[Math.floor(Math.random() * ids.length)], text: window.ANOMALIES_BANK[Math.floor(Math.random() * window.ANOMALIES_BANK.length)] } }); };
+window.startFinalChallenge = function() { const ps = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id)).sort((a,b) => (a.points||0) - (b.points||0)); if (ps.length < 2) return; window.initDuel(ps[0].id, ps[1].id); };
+window.updatePlayerField = function(pid, field, val) { const ps = {...window.state.players}; if (ps[pid]) { ps[pid][field] = val; window.patch({ players: ps }); } };
+window.toggleAdminEdit = function(pid) { window.patch({ adminEditId: window.state.adminEditId === pid ? null : pid }); };
+window.manualPoints = function(pid, delta) { const ps = {...window.state.players}; if (ps[pid]) ps[pid].points = (ps[pid].points || 0) + delta; window.patch({ players: ps }); };
+
+window.handleFileSelect = function(pid, event) { 
+    const file = event.target.files[0]; if (!file) return; 
+    const reader = new FileReader(); 
+    reader.onload = (e) => { window.updatePlayerField(pid, 'photo', e.target.result); }; 
+    reader.readAsDataURL(file); 
+};
+
+window.handleFileSelectPreview = function(event) { 
+    const file = event.target.files[0]; if (!file) return; 
+    const reader = new FileReader(); 
+    reader.onload = (e) => { 
+        window.tempPlayerPhoto = e.target.result; 
+        const prev = document.getElementById('join-photo-preview'); 
+        prev.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`; 
+        prev.classList.remove('hidden'); 
+    }; 
+    reader.readAsDataURL(file); 
+};
+
+window.openPeek = function(pid) { window.peekingId = pid; document.getElementById('peek-container').classList.remove('hidden'); window.render(); };
+window.closePeek = function() { window.peekingId = null; document.getElementById('peek-container').classList.add('hidden'); };
+window.doJoin = async function() { const n = document.getElementById('j-name').value.trim(); if(!n) return; const ps={...window.state.players}; ps[window.PLAYER_ID]={id:window.PLAYER_ID, name:n, points:0, suspicion:0, marks:0, joined:true, notes: "", photo: window.tempPlayerPhoto || ""}; window.patch({players:ps}); };
+
+// LOGICA POTERI
+window.usePower = function(pid) { 
+  const me = window.state.players[pid]; 
+  const role = me.role?.id;
+  const uses = window.state.powerUses?.[pid] || 0;
+  const max = window.GAME_ROLES[role]?.totalUses;
+
+  if (uses >= max) return;
+
+  if (role === 'medium') {
+      window.patch({ activePowerUI: {...window.state.activePowerUI, [pid]: 'showing_medium_menu'} });
+  } else if (role === 'investigatore') {
+      const pu = {...window.state.powerUses}; pu[pid] = uses + 1;
+      window.patch({ 
+          powerUses: pu,
+          activePowerUI: {...window.state.activePowerUI, [pid]: 'showing_investigation'} 
+      });
+  } else if (role === 'testimone') {
+      window.patch({ activePowerUI: {...window.state.activePowerUI, [pid]: 'showing_testimone_menu'} });
+  }
+};
+
+window.mediumQuery = function(roleKey, pid) { 
+  const pu = {...window.state.powerUses}; pu[pid] = (pu[pid] || 0) + 1; 
+  const potential = Object.values(window.state.players).filter(p => p.role?.id === roleKey); 
+  let name = potential.length > 0 ? potential[Math.floor(Math.random() * potential.length)].name : "Non presente"; 
+  window.patch({ 
+      powerUses: pu, 
+      activePowerUI: {...window.state.activePowerUI, [pid]: 'result:' + name} 
+  }); 
+};
+
+window.protectPlayer = function(targetId, pid) {
+  const pu = {...window.state.powerUses}; pu[pid] = (pu[pid] || 0) + 1;
+  const targetName = window.state.players[targetId]?.name || "Qualcuno";
+  window.patch({ 
+    powerUses: pu, 
+    protectedId: targetId,
+    activePowerUI: {...window.state.activePowerUI, [pid]: 'result:PROTEZIONE ATTIVA SU ' + targetName} 
+  });
+};
+
+window.closePowerUI = function(pid) { 
+    const ui = {...window.state.activePowerUI}; 
+    delete ui[pid]; 
+    window.patch({ activePowerUI: ui }); 
+};
+
+window.castVote = function(tId, pid = window.PLAYER_ID) { const v = {...window.state.votes}; v[pid] = tId; window.patch({votes: v}); };
+window.confirmThesis = function(idx, rk, pid = window.PLAYER_ID) { const t = window.ROUNDS[Math.max(0, window.state.round - 1)].thesis[rk][idx]; const p = {}; p[`thesis_${pid}`] = t; window.patch(p); };
+window.confirmVerdict = function(idx, pid = window.PLAYER_ID) { const opt = window.ROUNDS[Math.max(0, window.state.round - 1)].verdictOptions[idx]; const vv = {...window.state.verdictVotes}; vv[pid] = opt.id; window.patch({verdictVotes: vv}); };
+
+window.closeV1 = function() { 
+  const v = window.state.votes || {}; const ps = { ...window.state.players }; const tally = {}; 
+  Object.values(v).forEach(tId => { tally[tId] = (tally[tId] || 0) + 1; }); 
+  Object.keys(ps).forEach(pid => { if (!(tally[pid] > 0)) ps[pid].points += 10; }); 
+  const sorted = Object.entries(tally).sort((a,b)=>b[1]-a[1]); 
+  const sId = sorted[0]?.[0] || Object.keys(ps).filter(id => !window.state.deadIds.includes(id))[0]; 
+  const aId = Object.keys(v).find(vid => v[vid] === sId) || Object.keys(ps).filter(id => id !== sId && !window.state.deadIds.includes(id))[0]; 
+  window.patch({ players: ps, phase: 'select_thesis', currentRound: { suspect: sId, accuser: aId, defender: Object.keys(ps).find(pid => pid !== sId && pid !== aId && !window.state.deadIds.includes(pid)) } }); 
+};
+
+window.confirmMark = function(tId) { 
+  const ps = {...window.state.players}; 
+  if (tId !== window.state.protectedId) {
+      ps[tId].points = (ps[tId].points || 0) - 10; 
+      ps[tId].marks = (ps[tId].marks || 0) + 1; 
+  }
+  window.patch({players: ps, phase: 'scoreboard', protectedId: null}); 
+};
+
+window.initDuel = function(p1Id, p2Id) { 
+  const k = Object.values(window.state.players).find(p => p.role?.id === 'killer'); 
+  let facts = (k.notes || "Killer Silenzioso. Elegante. Beve.").split(/[.\n]/)
+              .map(s => s.trim())
+              .filter(s => s.length > 4); 
+  facts = facts.sort(() => Math.random() - 0.5);
+  const qs = []; 
+  for (let i = 0; i < 6; i++) { 
+    const fact = facts[i % facts.length]; 
+    const isTrue = Math.random() > 0.5; 
+    let text = fact; 
+    if (!isTrue) { 
+      const neg = [{m:/indossa/i, r:"non indossa"}, {m:/è/i, r:"non è"}, {m:/ha/i, r:"non ha"}]; 
+      let c = false; 
+      for (let n of neg) { if (n.m.test(text)) { text = text.replace(n.m, n.r); c = true; break; } } 
+      if (!c) text = "In realtà non " + text.charAt(0).toLowerCase() + text.slice(1); 
+    } 
+    qs.push({ type: 'tf', text, correct: isTrue }); 
+  } 
+  qs.push({ type: 'killer', text: "Chi è il Killer?", correct: k.id }); 
+  window.patch({ phase: 'final_challenge', currentDuel: { p1Id, p2Id, questions: qs, currentIdx: 0, scores: { [p1Id]: 0, [p2Id]: 0 }, answers: { [p1Id]: [], [p2Id]: [] }, winnerId: null, loserId: null } }); 
+};
+
+window.submitDuelAnswer = function(pid, ans) { const d = {...window.state.currentDuel}; d.answers[pid][d.currentIdx] = ans; if (d.answers[d.p1Id][d.currentIdx] !== undefined && d.answers[d.p2Id][d.currentIdx] !== undefined) { if (d.answers[d.p1Id][d.currentIdx] === d.questions[d.currentIdx].correct) d.scores[d.p1Id]++; if (d.answers[d.p2Id][d.currentIdx] === d.questions[d.currentIdx].correct) d.scores[d.p2Id]++; if (d.currentIdx < 6) d.currentIdx++; else { if (d.scores[d.p1Id] >= d.scores[d.p2Id]) { d.winnerId = d.p1Id; d.loserId = d.p2Id; } else { d.winnerId = d.p2Id; d.loserId = d.p1Id; } } } window.patch({ currentDuel: d }); };
+window.nextDuel = function() { const d = window.state.currentDuel; const dead = [...window.state.deadIds, d.loserId]; const ps = Object.values(window.state.players).filter(p => !dead.includes(p.id)).sort((a,b) => a.points - b.points); if (ps.length <= 3) window.patch({ deadIds: dead, phase: 'scoreboard', currentDuel: null }); else { window.state.deadIds = dead; window.initDuel(d.winnerId, ps.find(p => p.id !== d.winnerId).id); } };
+window.simulateNotes = function() { const ps = { ...window.state.players }; const ids = Object.keys(ps); ids.forEach((id, i) => { const n = ps[ids[(i+1)%ids.length]].name; ps[id].notes = `Indossa un ${["maglione bordeaux", "vestito nero", "cardigan grigio"][i%3]}. Alla destra di ${n}. Ha bevuto alcool. Molto difensivo.`; }); window.patch({ players: ps }); };
+window.updateTimer = function(id) { const el = document.getElementById(id); if(el && window.state.timerEndsAt) { const tick = () => { const left = Math.max(0, window.state.timerEndsAt - Date.now()); const m = String(Math.floor(left/60000)).padStart(2,'0'); const s = String(Math.floor((left%60000)/1000)).padStart(2,'0'); if(el) el.textContent = `${m}:${s}`; if(left > 0 && window.state.phase === 'discussion') requestAnimationFrame(tick); }; requestAnimationFrame(tick); } };
+window.doReset = async function() { const clean = { phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, deadIds: [], currentDuel: null, apparition: null, anomaly: null, powerUses: {}, activePowerUI: {}, protectedId: null }; Object.keys(window.state).forEach(k => { if (k.startsWith('thesis_')) clean[k] = null; }); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: clean }); window.state = clean; window.render(); };
+
+window.onload = function() { window.sync(); setInterval(window.sync, 2500); window.render(); };
+</script>
+</body>
+</html>
