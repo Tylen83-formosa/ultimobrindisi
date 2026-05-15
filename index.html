@@ -738,7 +738,7 @@ window.drawPlayer = function(c, pid = window.PLAYER_ID) {
         h += `<div class="bg-emerald-950/20 p-6 rounded-3xl border border-emerald-900/40 shadow-2xl"><p class="kicker mb-4 text-emerald-400 uppercase">Voto Inviato</p><p class="text-sm opacity-80">Hai scelto di proteggere <span class="text-emerald-400 font-black">${protectedName}</span>. Attendi gli altri spiriti...</p></div>`;
       } else {
         h += `<div class="bg-emerald-950/20 p-6 rounded-3xl border border-emerald-900/40 shadow-2xl"><p class="kicker mb-4 text-emerald-400 uppercase">Il Voto degli Spiriti</p><p class="text-xs mb-4 opacity-70">Scegli quale dei tre finalisti vuoi proteggere dall'ultima lama del killer. Solo tu sai chi salvare.</p><div class="grid grid-cols-1 gap-2">` +
-          survivors.map(p => `<button onclick="window.castProtectionVote('${p.id}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
+          survivors.map(p => `<button onclick="window.castProtectionVote('${p.id}', '${pid}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
       }
       c.innerHTML = h + `</div>`;
       return;
@@ -823,7 +823,7 @@ window.drawPlayer = function(c, pid = window.PLAYER_ID) {
               h += `<div class="bg-red-950/20 p-6 rounded-3xl border border-red-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-red-500 uppercase">Scelta Effettuata</p><p class="text-sm opacity-80">Hai scelto di eliminare <span class="text-red-400 font-black">${victimName}</span>. Attendi che la Casa riveli il rito.</p></div>`;
           } else {
               h += `<div class="bg-red-950/20 p-6 rounded-3xl border border-red-900/40 shadow-2xl text-white"><p class="kicker mb-4 text-red-500 uppercase">L'Ultima Vittima</p><p class="text-xs mb-4 opacity-70">Sei il killer. Scegli chi dei due eliminare prima della domanda finale: chi pensi ti stia sospettando di più?</p><div class="grid grid-cols-1 gap-2">` +
-                survivors.map(p => `<button onclick="window.castKillerChoice('${p.id}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
+                survivors.map(p => `<button onclick="window.castKillerChoice('${p.id}', '${pid}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
           }
       } else if (!window.state.deadIds.includes(pid)) {
           // Gli altri finalisti aspettano
@@ -840,7 +840,7 @@ window.drawPlayer = function(c, pid = window.PLAYER_ID) {
               h += `<div class="bg-accent/10 p-6 rounded-3xl border border-accent/30 shadow-2xl text-white"><p class="kicker mb-4 text-accent uppercase">Voto Inviato</p><p class="text-sm opacity-80 italic">Hai espresso la tua accusa. La Casa attende il verdetto finale.</p></div>`;
           } else {
               h += `<div class="bg-accent/10 p-6 rounded-3xl border border-accent/30 shadow-2xl text-white"><p class="kicker mb-4 text-accent uppercase">Chi è il Killer?</p><p class="text-xs mb-4 opacity-70">L'ultima accusa. Tre nomi, una sola verità. Vota chi credi sia stato.</p><div class="grid grid-cols-1 gap-2">` +
-                survivors.map(p => `<button onclick="window.castFinalAnswer('${p.id}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
+                survivors.map(p => `<button onclick="window.castFinalAnswer('${p.id}', '${pid}')" class="p-4 bg-white/5 border border-white/10 rounded-xl text-xs uppercase font-black text-white">${p.name}</button>`).join('') + `</div></div>`;
           }
       }
   }
@@ -884,7 +884,11 @@ window.setInterrogator = function(intId) { window.patch({ apparition: { ...windo
 window.closeGhost = function() { window.patch({ apparition: null }); };
 window.sendApp = function() { const ids = Object.keys(window.state.players); if (ids.length === 0) return; const chosen = Object.keys(window.APPARITIONS_CONFIG)[Math.floor(Math.random() * 4)]; window.patch({ apparition: { id: chosen, executor: ids[Math.floor(Math.random() * ids.length)], active: true, status: 'pending', interrogatorId: null } }); };
 window.sendAnom = function() { const ids = Object.keys(window.state.players); if (ids.length === 0) return; window.patch({ anomaly: { executor: ids[Math.floor(Math.random() * ids.length)], text: window.ANOMALIES_BANK[Math.floor(Math.random() * window.ANOMALIES_BANK.length)] } }); };
-window.startFinalChallenge = function() { const ps = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id)).sort((a,b) => (a.points||0) - (b.points||0)); if (ps.length < 2) return; window.initDuel(ps[0].id, ps[1].id); };
+window.startFinalChallenge = function() { 
+  const ps = Object.values(window.state.players).filter(p => !window.state.deadIds.includes(p.id)).sort((a,b) => (a.points||0) - (b.points||0)); 
+  if (ps.length < 2) return; 
+  window.initDuel(ps[0].id, ps[1].id); 
+};
 window.updatePlayerField = function(pid, field, val) { const ps = {...window.state.players}; if (ps[pid]) { ps[pid][field] = val; window.patch({ players: ps }); } };
 window.toggleAdminEdit = function(pid) { window.patch({ adminEditId: window.state.adminEditId === pid ? null : pid }); };
 window.manualPoints = function(pid, delta) { const ps = {...window.state.players}; if (ps[pid]) ps[pid].points = (ps[pid].points || 0) + delta; window.patch({ players: ps }); };
@@ -977,9 +981,16 @@ window.closeV1 = function() {
 window.confirmMark = function(tId) { 
   const ps = {...window.state.players}; 
   if (tId !== window.state.protectedId) {
+      // Marchio andato a segno: vittima penalizzata, killer ricompensato
       ps[tId].points = (ps[tId].points || 0) - 10; 
       ps[tId].marks = (ps[tId].marks || 0) + 1; 
+      // Il killer guadagna 5 punti per il marchio riuscito
+      const killer = Object.values(ps).find(p => p.role?.id === 'killer');
+      if (killer) {
+          ps[killer.id].points = (ps[killer.id].points || 0) + 5;
+      }
   }
+  // Se la vittima era protetta dal testimone: nessuno perde né guadagna punti
   window.patch({players: ps, phase: 'scoreboard', protectedId: null}); 
 };
 
@@ -1032,9 +1043,14 @@ window.nextDuel = function() {
 // --- MECCANICA FINALE A 3 ---
 
 // Un morto vota per proteggere un finalista
-window.castProtectionVote = function(targetFinalistId) {
+window.castProtectionVote = function(targetFinalistId, pid) {
+  pid = pid || window.PLAYER_ID;
+  console.log('[castProtectionVote] pid=', pid, 'target=', targetFinalistId, 'fase=', window.state.phase);
+  if (!targetFinalistId) { console.warn('[castProtectionVote] targetFinalistId mancante'); return; }
+  if (!pid) { console.warn('[castProtectionVote] pid mancante'); return; }
   const votes = { ...(window.state.protectionVotes || {}) };
-  votes[window.PLAYER_ID] = targetFinalistId;
+  votes[pid] = targetFinalistId;
+  console.log('[castProtectionVote] nuovi voti:', votes);
   window.patch({ protectionVotes: votes });
 };
 
@@ -1058,7 +1074,7 @@ window.closeProtectionVote = function() {
 };
 
 // Il killer sceglie chi eliminare tra i due non-killer rimasti
-window.castKillerChoice = function(victimId) {
+window.castKillerChoice = function(victimId, pid = window.PLAYER_ID) {
   window.patch({ killerVictimId: victimId });
 };
 
@@ -1076,9 +1092,9 @@ window.openFinalQuestion = function() {
 };
 
 // Un giocatore risponde alla domanda finale
-window.castFinalAnswer = function(guessedKillerId) {
+window.castFinalAnswer = function(guessedKillerId, pid = window.PLAYER_ID) {
   const ans = { ...(window.state.finalAnswers || {}) };
-  ans[window.PLAYER_ID] = guessedKillerId;
+  ans[pid] = guessedKillerId;
   window.patch({ finalAnswers: ans });
 };
 
@@ -1109,7 +1125,10 @@ window.simulateNotes = function() { const ps = { ...window.state.players }; cons
 window.updateTimer = function(id) { const el = document.getElementById(id); if(el && window.state.timerEndsAt) { const tick = () => { const left = Math.max(0, window.state.timerEndsAt - Date.now()); const m = String(Math.floor(left/60000)).padStart(2,'0'); const s = String(Math.floor((left%60000)/1000)).padStart(2,'0'); if(el) el.textContent = `${m}:${s}`; if(left > 0 && window.state.phase === 'discussion') requestAnimationFrame(tick); }; requestAnimationFrame(tick); } };
 window.doReset = async function() { const clean = { phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, deadIds: [], currentDuel: null, apparition: null, anomaly: null, powerUses: {}, activePowerUI: {}, protectedId: null, protectionVotes: {}, finalProtectedId: null, killerVictimId: null, killerEliminated: false, finalAnswers: {} }; Object.keys(window.state).forEach(k => { if (k.startsWith('thesis_')) clean[k] = null; }); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: clean }); window.state = clean; window.render(); };
 
-window.onload = function() { window.sync(); setInterval(window.sync, 2500); window.render(); };
+window.onload = function() { 
+  console.log('%c[L\'Ultimo Brindisi] Versione: 2026-05-15-killer-punti', 'background:#c08a3c;color:#000;font-weight:bold;padding:4px 8px;');
+  window.sync(); setInterval(window.sync, 2500); window.render(); 
+};
 
 /* ========== MUSICA DI SOTTOFONDO PER FASE DI GIOCO ========== */
 /* Solo questo blocco è stato aggiunto: nessun'altra logica del gioco è stata toccata. */
