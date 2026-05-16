@@ -401,8 +401,65 @@ window.render = function() {
   if (window.peekingId) { const ps = document.getElementById('peek-screen'); if (ps) window.drawPlayer(ps, window.peekingId); }
 };
 
-window.patch = async function(newData) { window.state = { ...window.state, ...newData }; window.render(); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: window.state, updated_at: new Date().toISOString() }); };
-window.sync = async function() { const { data } = await window.sb.from('game_states').select('data').eq('id', window.GAME_ID).maybeSingle(); if (data && JSON.stringify(data.data) !== JSON.stringify(window.state)) { window.state = data.data; window.render(); } };
+window.patch = async function(newData) { 
+  window.state = { ...window.state, ...newData }; 
+  window.render(); 
+  await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: window.state, updated_at: new Date().toISOString() }); 
+};
+
+window.sync = async function() { 
+  const { data } = await window.sb.from('game_states').select('data').eq('id', window.GAME_ID).maybeSingle(); 
+  if (data && JSON.stringify(data.data) !== JSON.stringify(window.state)) { 
+    window.state = data.data; 
+    window.render(); 
+  } 
+};
+
+// Realtime: sostituisce il polling ogni 2.5s con una subscription push.
+// Il server avvisa i client solo quando lo stato cambia davvero.
+window.startRealtime = function() {
+  // Fallback polling lento (ogni 15s) nel caso Realtime non sia disponibile
+  window._fallbackInterval = setInterval(window.sync, 15000);
+
+  const channel = window.sb
+    .channel('game-state-' + window.GAME_ID)
+    .on(
+      'postgres_changes',
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'game_states',
+        filter: 'id=eq.' + window.GAME_ID
+      },
+      (payload) => {
+        // Riceviamo il nuovo stato dal server in push (latenza ~50-200ms)
+        const newState = payload.new?.data;
+        if (!newState) return;
+        // Aggiorniamo solo se lo stato è effettivamente diverso dal nostro
+        if (JSON.stringify(newState) !== JSON.stringify(window.state)) {
+          window.state = newState;
+          window.render();
+        }
+      }
+    )
+    .subscribe((status) => {
+      console.log('[Realtime] status:', status);
+      if (status === 'SUBSCRIBED') {
+        // Realtime attivo: possiamo rallentare molto il fallback polling
+        clearInterval(window._fallbackInterval);
+        window._fallbackInterval = setInterval(window.sync, 30000); // ogni 30s solo per sicurezza
+        console.log('%c[Realtime] Connessione stabile. Polling ridotto a 30s.', 'color:green;font-weight:bold');
+      }
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        // Realtime non disponibile: torniamo al polling ogni 5s
+        clearInterval(window._fallbackInterval);
+        window._fallbackInterval = setInterval(window.sync, 5000);
+        console.warn('[Realtime] Connessione persa, fallback a polling 5s');
+      }
+    });
+
+  window._realtimeChannel = channel;
+};
 window.setView = function(v) { window.activeView = v; window.render(); };
 
 /** --- 5. VISTA TV --- **/
@@ -915,23 +972,55 @@ window.updatePlayerField = function(pid, field, val) { const ps = {...window.sta
 window.toggleAdminEdit = function(pid) { window.patch({ adminEditId: window.state.adminEditId === pid ? null : pid }); };
 window.manualPoints = function(pid, delta) { const ps = {...window.state.players}; if (ps[pid]) ps[pid].points = (ps[pid].points || 0) + delta; window.patch({ players: ps }); };
 
+// Utility: ridimensiona un file immagine a max 400x400 px (mantenendo aspect ratio) 
+// e lo restituisce come data URL JPEG compatto. Tipicamente ~30-80 KB per avatar.
+window.resizeImage = function(file, maxSize, callback) {
+  maxSize = maxSize || 400;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      // Calcola le nuove dimensioni mantenendo aspect ratio
+      let w = img.width, h = img.height;
+      if (w > h) { if (w > maxSize) { h = h * (maxSize / w); w = maxSize; } }
+      else { if (h > maxSize) { w = w * (maxSize / h); h = maxSize; } }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      // JPEG qualità 0.85 (ottimo compromesso peso/qualità per avatar)
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      callback(dataUrl);
+    };
+    img.onerror = () => { console.warn('[resizeImage] immagine non valida'); callback(null); };
+    img.src = e.target.result;
+  };
+  reader.onerror = () => { console.warn('[resizeImage] errore lettura file'); callback(null); };
+  reader.readAsDataURL(file);
+};
+
 window.handleFileSelect = function(pid, event) { 
     const file = event.target.files[0]; if (!file) return; 
-    const reader = new FileReader(); 
-    reader.onload = (e) => { window.updatePlayerField(pid, 'photo', e.target.result); }; 
-    reader.readAsDataURL(file); 
+    window.resizeImage(file, 400, (dataUrl) => {
+      if (dataUrl) {
+        console.log('[handleFileSelect] foto ridimensionata, dimensione finale:', Math.round(dataUrl.length / 1024), 'KB');
+        window.updatePlayerField(pid, 'photo', dataUrl);
+      }
+    });
 };
 
 window.handleFileSelectPreview = function(event) { 
     const file = event.target.files[0]; if (!file) return; 
-    const reader = new FileReader(); 
-    reader.onload = (e) => { 
-        window.tempPlayerPhoto = e.target.result; 
-        const prev = document.getElementById('join-photo-preview'); 
-        prev.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`; 
+    window.resizeImage(file, 400, (dataUrl) => {
+      if (!dataUrl) return;
+      window.tempPlayerPhoto = dataUrl; 
+      const prev = document.getElementById('join-photo-preview'); 
+      if (prev) {
+        prev.innerHTML = `<img src="${dataUrl}" class="w-full h-full object-cover">`; 
         prev.classList.remove('hidden'); 
-    }; 
-    reader.readAsDataURL(file); 
+      }
+    });
 };
 
 window.openPeek = function(pid) { window.peekingId = pid; document.getElementById('peek-container').classList.remove('hidden'); window.render(); };
@@ -1182,8 +1271,10 @@ window.updateTimer = function(id) { const el = document.getElementById(id); if(e
 window.doReset = async function() { const clean = { phase: 'lobby', round: 0, players: {}, votes: {}, verdictVotes: {}, deadIds: [], currentDuel: null, apparition: null, anomaly: null, powerUses: {}, activePowerUI: {}, protectedId: null, protectionVotes: {}, finalProtectedId: null, killerVictimId: null, killerEliminated: false, finalAnswers: {} }; Object.keys(window.state).forEach(k => { if (k.startsWith('thesis_')) clean[k] = null; }); await window.sb.from('game_states').upsert({ id: window.GAME_ID, data: clean }); window.state = clean; window.render(); };
 
 window.onload = function() { 
-  console.log('%c[L\'Ultimo Brindisi] Versione: 2026-05-15-finale-logica-completa', 'background:#c08a3c;color:#000;font-weight:bold;padding:4px 8px;');
-  window.sync(); setInterval(window.sync, 2500); window.render(); 
+  console.log('%c[L\'Ultimo Brindisi] Versione: 2026-05-15-realtime', 'background:#c08a3c;color:#000;font-weight:bold;padding:4px 8px;');
+  window.sync(); // caricamento iniziale dello stato
+  window.startRealtime(); // poi ci pensa Realtime
+  window.render(); 
 };
 
 /* ========== MUSICA DI SOTTOFONDO PER FASE DI GIOCO ========== */
